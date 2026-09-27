@@ -1,159 +1,146 @@
-# Turborepo starter
+# Gym Management SaaS (`gym-saas`)
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern, multi-tenant Gym Management SaaS platform built as a high-performance TypeScript monorepo using **Turborepo**, **Next.js 16**, **Tailwind CSS v4**, **shadcn/ui**, and **Biome**.
 
-## Using this example
+---
 
-Run the following command:
+## 🏗️ Architecture & Project Structure
 
-```sh
-npx create-turbo@latest
+```text
+gym-saas/
+├── apps/
+│   ├── web/               # Primary SaaS web application (Next.js 16 App Router)
+│   └── docs/              # Platform documentation and API references (Next.js 16)
+├── packages/
+│   ├── ui/                # Centralized UI library (shadcn/ui, Radix UI, Tailwind v4)
+│   ├── database/          # Shared database models & multi-tenant data layer (Prisma)
+│   ├── typescript-config/ # Shared tsconfig bases across workspaces
+│   └── eslint-config/     # Shared linting configs
+├── .coderabbit.yml        # CodeRabbit AI automated code review configuration
+├── .github/
+│   ├── workflows/ci.yml   # GitHub Actions CI pipeline (Lint, Typecheck, Build)
+│   └── dependabot.yml     # Automated weekly/monthly dependency updates
+├── .husky/                # Git hooks (pre-commit lint & format validation)
+├── biome.json             # Biome 2.5 linter and formatter configuration
+├── pnpm-workspace.yaml    # Monorepo workspace configuration
+└── turbo.json             # Turborepo task pipeline configuration
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🛠️ Tech Stack
 
-### Apps and Packages
+- **Framework**: [Next.js 16 (App Router & Turbopack)](https://nextjs.org/) + [React 19](https://react.dev/)
+- **Monorepo Engine**: [Turborepo](https://turbo.build/repo)
+- **Package Manager**: [pnpm](https://pnpm.io/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Component Primitives**: [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
+- **Linter & Formatter**: [Biome 2.5](https://biomejs.dev/)
+- **Git Hooks**: [Husky](https://typicode.github.io/husky/)
+- **CI/CD**: GitHub Actions
+- **AI Code Review**: [CodeRabbit](https://coderabbit.ai/)
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🚀 Getting Started
 
-### Utilities
+### Prerequisites
 
-This Turborepo has some additional tools already setup for you:
+- **Node.js**: `>= 24.0.0`
+- **pnpm**: `>= 10.0.0`
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Installation
 
-### Build
+```bash
+# Clone the repository
+git clone <repo-url>
+cd gym-saas
 
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+# Install workspace dependencies
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+> [!NOTE]
+> The `prepare` script automatically initializes Husky Git hooks upon running `pnpm install`.
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm exec turbo build
-pnpm exec turbo build
+### Development
+
+Run all applications and packages concurrently in watch mode:
+
+```bash
+pnpm dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+To run a specific application:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```bash
+# Run the web app only (http://localhost:3000)
+pnpm dev --filter=web
 
-```sh
-turbo build --filter=docs
+# Run the docs app only (http://localhost:3001)
+pnpm dev --filter=docs
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+## 📋 Available Scripts
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Starts all apps in development mode with Turbopack |
+| `pnpm build` | Builds all applications and packages for production |
+| `pnpm lint` | Runs Biome to check linting and formatting across the repo |
+| `pnpm lint:fix` | Automatically fixes safe lint issues and formats all files |
+| `pnpm lint:staged` | Validates only git-staged files (executed by Git pre-commit hook) |
+| `pnpm format` | Formats all files with Biome |
+| `pnpm check-types` | Type-checks all TypeScript packages via `turbo run check-types` |
+
+---
+
+## 🎨 UI Components & shadcn/ui
+
+Components are centralized in [`packages/ui`](packages/ui) and shared across all applications.
+
+### Adding a new shadcn component
+
+To install a new component into the shared UI library:
+
+```bash
+pnpm dlx shadcn@latest add <component-name> -c packages/ui --yes
 ```
 
-### Develop
+*Example:*
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+pnpm dlx shadcn@latest add dialog -c packages/ui --yes
+pnpm dlx shadcn@latest add dropdown-menu -c packages/ui --yes
 ```
 
-Without global `turbo`, use your package manager:
+### Consuming Components
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+Import components in your apps via the `@repo/ui` workspace package:
+
+```tsx
+import { Button } from '@repo/ui/components/ui/button';
+
+export default function MyPage() {
+  return <Button variant="default">Save Changes</Button>;
+}
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## 🛡️ Code Quality & CI/CD
 
-```sh
-turbo dev --filter=web
-```
+- **Pre-Commit Hook**: Husky runs `pnpm lint:staged` before any commit is created. Commits are blocked if formatting or lint checks fail.
+- **GitHub Actions CI**:
+  - `lint`: Validates Biome formatting and rules.
+  - `typecheck`: Runs `turbo run check-types` across all workspaces.
+  - `build`: Builds production artifacts with Turborepo caching.
+- **CodeRabbit AI**: Automated pull request review verifying architectural invariants, multi-tenancy boundaries, and atomic database transactions.
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+## 📄 License
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Private repository. All rights reserved.

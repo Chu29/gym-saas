@@ -1,0 +1,29 @@
+language: "en"
+tone_instructions: "Be direct, professional, and focus heavily on architecture, security, multi-tenancy compliance, and performance."
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    branches:
+      - "main"
+      - "dev"
+      - "feature/*"
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/.next/**"
+    - "!**/dist/**"
+    - "!packages/database/generated/**"
+
+  # Custom guidance for CodeRabbit when reviewing PRs in this specific repo
+  instructions: |
+    Pay strict attention to the following architectural invariants for this Gym Management SaaS platform:
+    1. Multi-Tenancy: Every database query and service layer action MUST include a mandatory `tenantId` filter. Flag any missing tenant scoping as a critical security vulnerability.
+    2. Wallet & Ledger Mutations: All balance updates must execute through a single atomic transaction path (Prisma `$transaction` with version-based optimistic concurrency) to prevent double-spending or race conditions.
+    3. Monorepo Boundaries: Ensure business logic doesn't leak directly between `apps/api` and `apps/web`. Shared DB models should flow strictly through `packages/database`.

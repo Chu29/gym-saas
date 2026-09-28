@@ -25,6 +25,18 @@
     },
     "//#lint:fix": {
       "cache": false
+    },
+    "db:validate": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "db:push": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "db:seed": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
     }
   }
 }

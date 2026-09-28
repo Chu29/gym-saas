@@ -7,13 +7,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ==========================================
+// PLATFORM / SAAS LEVEL MODELS (SUPER ADMIN)
+// ==========================================
+
+model SaasPlan {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String   // e.g., "Starter", "Pro", "Enterprise"
+  code          String   @unique // STARTER, PRO, ENTERPRISE
+  priceCents    Int      // Subscription cost in cents
+  currency      String   @default("USD")
+  maxMembers    Int      // Member cap per gym
+  maxStaff      Int      // Staff account cap per gym
+  stripePriceId String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenants Tenant[]
+
+  @@map("saas_plans")
+}
+
+// ==========================================
+// TENANT & CORE MODELS
+// ==========================================
+
 model Tenant {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  slug      String       @unique
-  status    TenantStatus @default(TRIAL)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  slug             String       @unique
+  status           TenantStatus @default(ACTIVE) // Instant activation defaults to ACTIVE
+  ownerEmail       String
+  saasPlanId       String?      @db.ObjectId
+  saasPlan         SaasPlan?    @relation(fields: [saasPlanId], references: [id])
+  stripeCustomerId String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   users       User[]
   members     MemberProfile[]
@@ -21,8 +51,9 @@ model Tenant {
   services    Service[]
   rooms       RoomStation[]
   wallets     MemberWallet[]
-  ledgerEntries TokenLedger[]
   redemptions ServiceRedemption[]
+  ledger      TokenLedger[]
+
 
   @@map("tenants")
 }
@@ -36,8 +67,8 @@ enum TenantStatus {
 
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId     String   @db.ObjectId
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId     String?  @db.ObjectId // Nullable for global SUPER_ADMIN accounts
+  tenant       Tenant?  @relation(fields: [tenantId], references: [id])
   email        String
   passwordHash String
   role         UserRole
@@ -89,16 +120,16 @@ enum BillingCycle {
 }
 
 model MemberProfile {
-  id           String       @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId     String       @db.ObjectId
-  tenant       Tenant       @relation(fields: [tenantId], references: [id])
-  userId       String       @unique @db.ObjectId
-  user         User         @relation(fields: [userId], references: [id])
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId     String            @db.ObjectId
+  tenant       Tenant            @relation(fields: [tenantId], references: [id])
+  userId       String            @unique @db.ObjectId
+  user         User              @relation(fields: [userId], references: [id])
   membershipNo String
-  planId       String?      @db.ObjectId
+  planId       String?           @db.ObjectId
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
-  status       MemberStatus @default(ACTIVE)
-  joinedAt     DateTime     @default(now())
+  status       MemberStatus      @default(ACTIVE)
+  joinedAt     DateTime          @default(now())
 
   wallet      MemberWallet?
   redemptions ServiceRedemption[]
@@ -115,15 +146,15 @@ enum MemberStatus {
 }
 
 model MemberWallet {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId  String   @db.ObjectId
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  memberId  String   @unique @db.ObjectId
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String        @db.ObjectId
+  tenant    Tenant        @relation(fields: [tenantId], references: [id])
+  memberId  String        @unique @db.ObjectId
   member    MemberProfile @relation(fields: [memberId], references: [id])
-  balance   Int      @default(0)
-  version   Int      @default(0)
+  balance   Int           @default(0)
+  version   Int           @default(0)
   lastTxnAt DateTime?
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime      @updatedAt
 
   ledgerEntries TokenLedger[]
 
@@ -200,7 +231,7 @@ model RoomStation {
   isActive     Boolean      @default(true)
   createdAt    DateTime     @default(now())
 
-  redemptions  ServiceRedemption[]
+  redemptions ServiceRedemption[]
 
   @@index([tenantId])
   @@map("room_stations")

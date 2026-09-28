@@ -41,6 +41,9 @@
       "preset": "recommended",
       "suspicious": {
         "noConsole": "warn"
+      },
+      "style": {
+        "useImportType": "off"
       }
     }
   },

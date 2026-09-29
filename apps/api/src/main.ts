@@ -1,10 +1,38 @@
+import { clerkMiddleware } from '@clerk/express';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule, ObserveInstrument } from './app.module.js';
+import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    instrument: ObserveInstrument,
+    // Required to capture raw request body for Svix webhook verification
+    rawBody: true,
   });
-  await app.listen(process.env.PORT ?? 4000);
+
+  const logger = new Logger('Bootstrap');
+
+  // Enable CORS for Next.js frontend calls
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  });
+
+  // Global DTO Validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // Attach Clerk Express Middleware globally
+  app.use(clerkMiddleware());
+
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  logger.log(`Application is running on: http://localhost:${port}`);
 }
-await bootstrap();
+bootstrap();

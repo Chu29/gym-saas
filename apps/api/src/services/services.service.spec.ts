@@ -16,14 +16,14 @@ describe('ServicesService tenant isolation', () => {
   it('list always filters by tenantId', async () => {
     const { service, sut } = setup();
     await sut.list('t1', { isActive: true });
-    expect(service.findMany.mock.calls[0]![0].where).toEqual({ tenantId: 't1', isActive: true });
+    expect(service.findMany.mock.calls[0]?.[0].where).toEqual({ tenantId: 't1', isActive: true });
   });
 
   it('create stamps the caller tenantId', async () => {
     const { service, sut } = setup();
     service.create.mockResolvedValue({});
     await sut.create('t1', { name: 'Sauna', category: 'SAUNA', tokenCost: 2 });
-    expect(service.create.mock.calls[0]![0].data.tenantId).toBe('t1');
+    expect(service.create.mock.calls[0]?.[0].data.tenantId).toBe('t1');
   });
 
   it('update scopes by id AND tenantId, 404 for another tenant', async () => {
@@ -32,7 +32,7 @@ describe('ServicesService tenant isolation', () => {
     await expect(sut.update('t1', 'a'.repeat(24), { tokenCost: 3 })).rejects.toBeInstanceOf(
       NotFoundException,
     );
-    expect(service.updateMany.mock.calls[0]![0].where).toEqual({
+    expect(service.updateMany.mock.calls[0]?.[0].where).toEqual({
       id: 'a'.repeat(24),
       tenantId: 't1',
     });

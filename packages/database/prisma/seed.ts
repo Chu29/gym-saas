@@ -54,7 +54,7 @@ async function main() {
     });
   }
 
-  const check = await prisma.tenant.findUniqueOrThrow({
+  await prisma.tenant.findUniqueOrThrow({
     where: { slug: 'demo-gym' },
     include: { users: true, plans: true, services: true },
   });
@@ -62,7 +62,7 @@ async function main() {
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (e) => {
+  .catch(async (_e) => {
     await prisma.$disconnect();
     process.exit(1);
   });

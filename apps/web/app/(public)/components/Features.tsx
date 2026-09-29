@@ -1,3 +1,1 @@
-export default function Features() {
-  return null;
-}
+export { default } from './Features/FeaturesGrid';

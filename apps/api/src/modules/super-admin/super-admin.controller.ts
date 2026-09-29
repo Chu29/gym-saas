@@ -20,9 +20,9 @@ export class SuperAdminController {
     return this.superAdminService.getAllTenants();
   }
 
-  @Patch('tenants/:id')
-  updateTenant(@Param('id') id: string, @Body() dto: UpdateTenantStatusDto) {
-    return this.superAdminService.updateTenant(id, dto);
+  @Patch('tenants/:tenantId')
+  async updateTenant(@Param('tenantId') tenantId: string, @Body() dto: UpdateTenantStatusDto) {
+    return this.superAdminService.updateTenant(tenantId, dto);
   }
 
   // 3. SaaS Plans Management

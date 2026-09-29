@@ -8,6 +8,8 @@ interface Tenant {
   _count?: { members: number };
 }
 
+import TenantStatusToggle from './tenant-status-toggle';
+
 const STATUS_STYLES: Record<Tenant['status'], { badge: string; dot: string }> = {
   ACTIVE: { badge: 'bg-emerald-50 text-emerald-800', dot: 'bg-emerald-600' },
   TRIAL: { badge: 'bg-sky-50 text-sky-800', dot: 'bg-sky-500' },
@@ -59,6 +61,7 @@ export default async function TenantsPage() {
                 <th className="px-6 py-4 font-semibold">Plan</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
                 <th className="px-6 py-4 text-right font-semibold">Members</th>
+                <th className="px-6 py-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-neutral-700">
@@ -87,12 +90,16 @@ export default async function TenantsPage() {
                     <td className="px-6 py-4 text-right tabular-nums text-neutral-950">
                       {tenant._count?.members ?? 0}
                     </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <TenantStatusToggle tenantId={tenant.id} status={tenant.status} />
+                    </td>
                   </tr>
                 );
               })}
               {tenants.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-sm text-neutral-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-neutral-500">
                     No gyms to display yet.
                   </td>
                 </tr>

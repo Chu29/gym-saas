@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { PlanModal } from './_components/PlanModal';
 
 interface SaaSPlan {
   id: string;
@@ -138,20 +139,17 @@ export default function PlansPage() {
         </button>
       </header>
 
-      {/* {error && (
+      {_error && (
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
+          {_error}
         </div>
       )}
 
-      {loading ? (
+      {_loading ? (
         <p className="mt-8 text-sm text-neutral-500">Loading plans…</p>
       ) : (
-        <section
-          aria-label="SaaS plans"
-          className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
-        >
-          {plans.map((plan) => (
+        <section aria-label="SaaS plans" className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {_plans.map((plan) => (
             <article
               key={plan.id}
               className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm hover:border-emerald-200 transition-colors"
@@ -166,26 +164,21 @@ export default function PlansPage() {
                   )}
                 </span>
               </div>
-              <h2 className="mt-2 text-xl font-bold text-neutral-950">
-                {plan.name}
-              </h2>
+              <h2 className="mt-2 text-xl font-bold text-neutral-950">{plan.name}</h2>
               <p className="mt-2 text-3xl font-extrabold text-neutral-950">
                 ${(plan.priceCents / 100).toLocaleString()}
-                <span className="text-sm font-medium text-neutral-500">
-                  {" "}
-                  / mo
-                </span>
+                <span className="text-sm font-medium text-neutral-500"> / mo</span>
               </p>
               <div className="mt-6 space-y-1 border-t border-neutral-100 pt-4 text-sm text-neutral-600">
                 <div>
-                  Member limit:{" "}
+                  Member limit:{' '}
                   <span className="float-right font-semibold text-neutral-950">
                     {plan.maxMembers.toLocaleString()}
                   </span>
                 </div>
                 {plan.maxStaff !== undefined && (
                   <div>
-                    Staff limit:{" "}
+                    Staff limit:{' '}
                     <span className="float-right font-semibold text-neutral-950">
                       {plan.maxStaff.toLocaleString()}
                     </span>
@@ -196,28 +189,28 @@ export default function PlansPage() {
               <div className="mt-5 flex flex-wrap gap-2 border-t border-neutral-100 pt-4">
                 <button
                   type="button"
-                  onClick={() => handleEdit(plan)}
-                  disabled={pendingId === plan.id}
+                  onClick={() => _handleEdit(plan)}
+                  disabled={_pendingId === plan.id}
                   className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 transition-colors"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleTogglePublish(plan)}
-                  disabled={pendingId === plan.id}
+                  onClick={() => _handleTogglePublish(plan)}
+                  disabled={_pendingId === plan.id}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
                     plan.isActive
-                      ? "border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-                      : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                      ? 'border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                      : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
                   }`}
                 >
-                  {plan.isActive ? "Unpublish" : "Publish"}
+                  {plan.isActive ? 'Unpublish' : 'Publish'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(plan)}
-                  disabled={pendingId === plan.id}
+                  onClick={() => _handleDelete(plan)}
+                  disabled={_pendingId === plan.id}
                   className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
                 >
                   Delete
@@ -226,22 +219,20 @@ export default function PlansPage() {
             </article>
           ))}
 
-          {plans.length === 0 && (
-            <p className="text-sm text-neutral-500">
-              No plans yet. Create one to get started.
-            </p>
+          {_plans.length === 0 && (
+            <p className="text-sm text-neutral-500">No plans yet. Create one to get started.</p>
           )}
         </section>
       )}
 
       <PlanModal
-        isOpen={modalOpen}
+        isOpen={_modalOpen}
         onClose={() => setModalOpen(false)}
         onSuccess={() => {
           fetchPlans();
         }}
-        initialData={editingPlan}
-      /> */}
+        initialData={_editingPlan}
+      />
     </div>
   );
 }

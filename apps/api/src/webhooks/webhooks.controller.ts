@@ -1,11 +1,5 @@
-import {
-  BadRequestException,
-  Controller,
-  Headers,
-  Post,
-  RawBodyRequest,
-  Req,
-} from '@nestjs/common';
+import type { RawBodyRequest } from '@nestjs/common';
+import { BadRequestException, Controller, Headers, Post, Req } from '@nestjs/common';
 import { UserRole } from '@repo/database';
 import type { Request } from 'express';
 import { Webhook } from 'svix';
@@ -52,11 +46,17 @@ export class WebhooksController {
 
     try {
       // Use rawBody provided by NestFactory configuration
-      evt = wh.verify(req.rawBody as Buffer, {
+      const verified = wh.verify(req.rawBody as Buffer, {
         'svix-id': svixId,
         'svix-timestamp': svixTimestamp,
         'svix-signature': svixSignature,
-      }) as ClerkWebhookEvent;
+      });
+
+      if (!verified) {
+        throw new BadRequestException('Webhook verification failed');
+      }
+
+      evt = verified as ClerkWebhookEvent;
     } catch {
       throw new BadRequestException('Webhook verification failed');
     }
@@ -64,7 +64,7 @@ export class WebhooksController {
     const { type, data } = evt;
 
     if (type === 'user.created') {
-      const primaryEmail = data.email_addresses[0]?.email_address;
+      const primaryEmail = data.email_addresses?.[0]?.email_address ?? '';
       const tenantId = data.public_metadata?.tenantId || null;
       const role = data.public_metadata?.role ?? UserRole.MEMBER;
 
@@ -91,7 +91,7 @@ export class WebhooksController {
     }
 
     if (type === 'user.updated') {
-      const primaryEmail = data.email_addresses[0]?.email_address;
+      const primaryEmail = data.email_addresses?.[0]?.email_address ?? '';
       const tenantId = data.public_metadata?.tenantId || null;
       const role = data.public_metadata?.role ?? UserRole.MEMBER;
 

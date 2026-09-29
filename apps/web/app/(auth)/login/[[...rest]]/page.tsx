@@ -8,7 +8,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-900">Sign In to Your Gym</h1>
           <p className="mt-2 text-gray-600">Access your gym management dashboard</p>
         </div>
-        <SignIn afterSignInUrl="/onboarding" />
+        <SignIn fallbackRedirectUrl="/onboarding" />
       </div>
     </div>
   );

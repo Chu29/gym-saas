@@ -8,7 +8,7 @@ export default function SignUpPage() {
           <h1 className="text-3xl font-bold text-gray-900">Create Your Gym Account</h1>
           <p className="mt-2 text-gray-600">Sign up to get started with your gym</p>
         </div>
-        <SignUp afterSignUpUrl="/onboarding" />
+        <SignUp fallbackRedirectUrl="/onboarding" />
       </div>
     </div>
   );

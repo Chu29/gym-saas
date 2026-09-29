@@ -3,10 +3,20 @@ interface Tenant {
   name: string;
   slug: string;
   ownerEmail: string;
-  status: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
+  status: 'TRIAL' | 'ACTIVE' | 'SUSPENDED' | 'CANCELLED';
   saasPlan?: { name: string };
   _count?: { members: number };
 }
+
+const STATUS_STYLES: Record<Tenant['status'], { badge: string; dot: string }> = {
+  ACTIVE: { badge: 'bg-emerald-50 text-emerald-800', dot: 'bg-emerald-600' },
+  TRIAL: { badge: 'bg-sky-50 text-sky-800', dot: 'bg-sky-500' },
+  SUSPENDED: { badge: 'bg-rose-50 text-rose-800', dot: 'bg-rose-500' },
+  CANCELLED: {
+    badge: 'bg-neutral-100 text-neutral-600',
+    dot: 'bg-neutral-400',
+  },
+};
 
 async function getTenants(): Promise<Tenant[]> {
   try {
@@ -52,33 +62,34 @@ export default async function TenantsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-neutral-700">
-              {tenants.map((tenant) => (
-                <tr key={tenant.id} className="transition-colors hover:bg-emerald-50/40">
-                  <td className="px-6 py-4 font-medium text-neutral-950">
-                    {tenant.name}
-                    <div className="mt-1 text-xs font-normal text-neutral-500">{tenant.slug}</div>
-                  </td>
-                  <td className="px-6 py-4">{tenant.ownerEmail}</td>
-                  <td className="px-6 py-4">
-                    <span className="rounded-md border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
-                      {tenant.saasPlan?.name || 'Unassigned'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${tenant.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-800' : tenant.status === 'SUSPENDED' ? 'bg-rose-50 text-rose-800' : 'bg-amber-50 text-amber-800'}`}
-                    >
+              {tenants.map((tenant) => {
+                const style = STATUS_STYLES[tenant.status] ?? STATUS_STYLES.TRIAL;
+                return (
+                  <tr key={tenant.id} className="transition-colors hover:bg-emerald-50/40">
+                    <td className="px-6 py-4 font-medium text-neutral-950">
+                      {tenant.name}
+                      <div className="mt-1 text-xs font-normal text-neutral-500">{tenant.slug}</div>
+                    </td>
+                    <td className="px-6 py-4">{tenant.ownerEmail}</td>
+                    <td className="px-6 py-4">
+                      <span className="rounded-md border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                        {tenant.saasPlan?.name || 'Unassigned'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
                       <span
-                        className={`size-1.5 rounded-full ${tenant.status === 'ACTIVE' ? 'bg-emerald-600' : tenant.status === 'SUSPENDED' ? 'bg-rose-500' : 'bg-amber-500'}`}
-                      />
-                      {tenant.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-neutral-950">
-                    {tenant._count?.members ?? 0}
-                  </td>
-                </tr>
-              ))}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.badge}`}
+                      >
+                        <span className={`size-1.5 rounded-full ${style.dot}`} />
+                        {tenant.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right tabular-nums text-neutral-950">
+                      {tenant._count?.members ?? 0}
+                    </td>
+                  </tr>
+                );
+              })}
               {tenants.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-sm text-neutral-500">

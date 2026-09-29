@@ -1,8 +1,8 @@
 interface DashboardStats {
-  totalGyms: number;
-  activeGyms: number;
+  totalTenants: number;
+  activeTenants: number;
   totalMembers: number;
-  activeSaasPlans: number;
+  activePlans: number;
 }
 
 async function getStats(): Promise<DashboardStats | null> {
@@ -23,10 +23,10 @@ async function getStats(): Promise<DashboardStats | null> {
 export default async function SuperAdminDashboardPage() {
   const stats = await getStats();
   const metrics = [
-    { label: 'Total Gyms', value: stats?.totalGyms ?? 0 },
-    { label: 'Active Gyms', value: stats?.activeGyms ?? 0 },
+    { label: 'Total Gyms', value: stats?.totalTenants ?? 0 },
+    { label: 'Active Gyms', value: stats?.activeTenants ?? 0 },
     { label: 'Total Members', value: stats?.totalMembers ?? 0 },
-    { label: 'Active SaaS Plans', value: stats?.activeSaasPlans ?? 0 },
+    { label: 'Active SaaS Plans', value: stats?.activePlans ?? 0 },
   ];
 
   return (

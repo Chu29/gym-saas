@@ -38,12 +38,12 @@ export function CreateMembershipPlanDialog({
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<MembershipPlanFormValues>({
-    resolver: zodResolver(membershipPlanFormSchema),
+    resolver: zodResolver(membershipPlanFormSchema) as any,
     defaultValues: {
       name: '',
       description: '',
@@ -55,6 +55,7 @@ export function CreateMembershipPlanDialog({
       perks: [],
     },
   });
+
   const perks = watch('perks');
   const isActive = watch('isActive');
   useEffect(() => {

@@ -16,6 +16,7 @@ export class MemberRepository {
         data: {
           tenantId,
           email: dto.email,
+          clerkId: (dto as any).clerkId ?? `pending_${membershipNo}`,
           role: 'MEMBER',
           firstName: dto.firstName,
           lastName: dto.lastName,

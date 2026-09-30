@@ -37,4 +37,5 @@ yarn-error.log*
 .DS_Store
 *.pem
 .marscode/
+*.tsbuildinfo
 apps/api/tsconfig.build.tsbuildinfo

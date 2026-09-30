@@ -1,20 +1,23 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import { Providers } from "./providers";
+import { ClerkProvider } from '@clerk/nextjs';
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import { Providers } from './providers';
+import './globals.css';
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
 });
+
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
 });
 
 export const metadata: Metadata = {
-  title: "GymFlow",
-  description: "Multi-tenant gym management platform",
+  title: 'FITNEXA - All-in-One Gym Management Platform',
+  description:
+    'Automate member access, streamline recurring billing, build personalized workout programs, and scale single clubs or multi-gym franchises with unmatched operational precision.',
 };
 
 export default function RootLayout({
@@ -23,10 +26,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          suppressHydrationWarning
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,3 +1,1 @@
-export default function PricingCards() {
-  return null;
-}
+export { default } from './Pricing/PricingSection';

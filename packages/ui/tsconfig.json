@@ -9,5 +9,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["dist", "build", "node_modules"]
 }

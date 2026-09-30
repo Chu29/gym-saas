@@ -11,6 +11,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.7",
     "@hookform/resolvers": "^5.9.1",
     "@repo/ui": "workspace:*",
     "@tanstack/react-query": "^5.104.0",

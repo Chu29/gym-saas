@@ -1,5 +1,5 @@
-import { getAuth } from "@clerk/express";
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { getAuth } from '@clerk/express';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
@@ -10,7 +10,7 @@ export class ClerkAuthGuard implements CanActivate {
     const authState = getAuth(request);
 
     if (!authState.userId) {
-      throw new UnauthorizedException("Authentication token required");
+      throw new UnauthorizedException('Authentication token required');
     }
 
     // Attach user claims to request context

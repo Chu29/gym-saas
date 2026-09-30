@@ -8,16 +8,16 @@ import {
   Post,
   Query,
   UseGuards,
-} from "@nestjs/common";
-import { UserRole } from "@repo/database";
-import { ClerkAuthGuard } from "../../auth/clerk-auth.guard.js";
-import { TenantId } from "../../auth/decorators/auth-user.decorator.js";
-import { Roles } from "../../auth/roles.decorator.js";
-import { RolesGuard } from "../../auth/roles.guard.js";
-import { CreateMembershipPlanDto, UpdateMembershipPlanDto } from "./membership-plan.dto.js";
-import { MembershipPlanService } from "./membership-plan.service.js";
+} from '@nestjs/common';
+import { UserRole } from '@repo/database';
+import { ClerkAuthGuard } from '../../auth/clerk-auth.guard.js';
+import { TenantId } from '../../auth/decorators/auth-user.decorator.js';
+import { Roles } from '../../auth/roles.decorator.js';
+import { RolesGuard } from '../../auth/roles.guard.js';
+import { CreateMembershipPlanDto, UpdateMembershipPlanDto } from './membership-plan.dto.js';
+import { MembershipPlanService } from './membership-plan.service.js';
 
-@Controller("membership-plans")
+@Controller('membership-plans')
 @UseGuards(ClerkAuthGuard, RolesGuard)
 export class MembershipPlanController {
   constructor(private readonly service: MembershipPlanService) {}
@@ -30,29 +30,29 @@ export class MembershipPlanController {
 
   @Get()
   @Roles(UserRole.GYM_ADMIN, UserRole.FRONT_DESK, UserRole.TRAINER, UserRole.MEMBER)
-  findAll(@TenantId() tenantId: string, @Query("activeOnly") activeOnly?: string) {
-    return this.service.findAll(tenantId, activeOnly === "true");
+  findAll(@TenantId() tenantId: string, @Query('activeOnly') activeOnly?: string) {
+    return this.service.findAll(tenantId, activeOnly === 'true');
   }
 
-  @Get(":id")
+  @Get(':id')
   @Roles(UserRole.GYM_ADMIN, UserRole.FRONT_DESK, UserRole.TRAINER, UserRole.MEMBER)
-  findOne(@TenantId() tenantId: string, @Param("id") id: string) {
+  findOne(@TenantId() tenantId: string, @Param('id') id: string) {
     return this.service.findOne(tenantId, id);
   }
 
-  @Patch(":id")
+  @Patch(':id')
   @Roles(UserRole.GYM_ADMIN)
   update(
     @TenantId() tenantId: string,
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Body() dto: UpdateMembershipPlanDto,
   ) {
     return this.service.update(tenantId, id, dto);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @Roles(UserRole.GYM_ADMIN)
-  deactivate(@TenantId() tenantId: string, @Param("id") id: string) {
+  deactivate(@TenantId() tenantId: string, @Param('id') id: string) {
     return this.service.deactivate(tenantId, id);
   }
 }

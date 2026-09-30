@@ -1,9 +1,9 @@
 // apps/web/features/membership-plans/components/icon-menu.tsx
-"use client";
+'use client';
 
-import { MoreVertical } from "lucide-react";
-import { useState } from "react";
-import { useClickOutside } from "../lib/use-click-outside";
+import { MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { useClickOutside } from '../lib/use-click-outside';
 
 export function IconMenu({
   items,
@@ -35,8 +35,8 @@ export function IconMenu({
                 }}
                 className={`block w-full px-3.5 py-1.5 text-left text-xs font-medium transition-colors hover:bg-gray-50 ${
                   item.danger
-                    ? "text-red-600 hover:text-red-700"
-                    : "text-gray-700 hover:text-gray-900"
+                    ? 'text-red-600 hover:text-red-700'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 {item.label}

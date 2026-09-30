@@ -1,7 +1,7 @@
-import { Module } from "@nestjs/common";
-import { MembershipPlanController } from "./membership-plan.controller.js";
-import { MembershipPlanRepository } from "./membership-plan.repository.js";
-import { MembershipPlanService } from "./membership-plan.service.js";
+import { Module } from '@nestjs/common';
+import { MembershipPlanController } from './membership-plan.controller.js';
+import { MembershipPlanRepository } from './membership-plan.repository.js';
+import { MembershipPlanService } from './membership-plan.service.js';
 
 @Module({
   controllers: [MembershipPlanController],

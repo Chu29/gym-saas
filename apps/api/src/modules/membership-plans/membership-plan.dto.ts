@@ -1,4 +1,4 @@
-import { BillingCycle, DurationUnit } from "@repo/database";
+import { BillingCycle, DurationUnit } from '@repo/database';
 import {
   IsArray,
   IsBoolean,
@@ -8,7 +8,7 @@ import {
   IsString,
   Min,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateMembershipPlanDto {
   @IsString() @MinLength(2) name: string;

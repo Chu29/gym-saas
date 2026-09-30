@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext, UnauthorizedException } from "@nestjs/common";
+import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
 export const CurrentClerkUser = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();
@@ -10,7 +10,7 @@ export const TenantId = createParamDecorator((_data: unknown, ctx: ExecutionCont
   const tenantId = request.user?.claims?.metadata?.tenantId;
 
   if (!tenantId) {
-    throw new UnauthorizedException("User is not associated with any active Gym Tenant");
+    throw new UnauthorizedException('User is not associated with any active Gym Tenant');
   }
 
   return tenantId;

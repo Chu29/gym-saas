@@ -1,13 +1,13 @@
 // apps/web/features/membership-plans/components/membership-plan-filters.tsx
-"use client";
+'use client';
 
-import { ArrowUpDown, Calendar, Search } from "lucide-react";
+import { ArrowUpDown, Calendar, Search } from 'lucide-react';
 
 interface Props {
   search: string;
   onSearchChange: (v: string) => void;
-  statusFilter: "all" | "active" | "inactive";
-  onStatusFilterChange: (v: "all" | "active" | "inactive") => void;
+  statusFilter: 'all' | 'active' | 'inactive';
+  onStatusFilterChange: (v: 'all' | 'active' | 'inactive') => void;
   counts: { all: number; active: number; inactive: number };
 }
 
@@ -19,9 +19,9 @@ export function MembershipPlanFilters({
   counts,
 }: Props) {
   const tabs: { key: typeof statusFilter; label: string; count: number }[] = [
-    { key: "all", label: "All", count: counts.all },
-    { key: "active", label: "Active", count: counts.active },
-    { key: "inactive", label: "Inactive", count: counts.inactive },
+    { key: 'all', label: 'All', count: counts.all },
+    { key: 'active', label: 'Active', count: counts.active },
+    { key: 'inactive', label: 'Inactive', count: counts.inactive },
   ];
 
   return (
@@ -50,7 +50,7 @@ export function MembershipPlanFilters({
                 type="button"
                 onClick={() => onStatusFilterChange(tab.key)}
                 className={`transition-colors ${
-                  isActive ? "font-bold text-gray-900" : "text-gray-500 hover:text-gray-700"
+                  isActive ? 'font-bold text-gray-900' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 {tab.label} ({tab.count})

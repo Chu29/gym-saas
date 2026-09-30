@@ -1,5 +1,5 @@
-import { MemberStatus } from "@repo/database";
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { MemberStatus } from '@repo/database';
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateMemberDto {
   @IsString() @MinLength(2) firstName: string;

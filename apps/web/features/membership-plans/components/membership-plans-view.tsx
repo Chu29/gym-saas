@@ -1,27 +1,27 @@
 // apps/web/features/membership-plans/components/membership-plans-view.tsx
-"use client";
+'use client';
 
-import { Download, Plus, RefreshCw } from "lucide-react";
-import { useState } from "react";
-import { useMembershipPlans } from "../hooks/use-membership-plans";
-import { CreateMembershipPlanDialog } from "./create-membership-plan-dialog";
-import { MembershipPlanFilters } from "./membership-plan-filters";
-import { MembershipPlanStats } from "./membership-plan-stats";
-import { MembershipPlanTable } from "./membership-plan-table";
-import { MembershipPlanTierCards } from "./membership-plan-tier-cards";
+import { Download, Plus, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { useMembershipPlans } from '../hooks/use-membership-plans';
+import { CreateMembershipPlanDialog } from './create-membership-plan-dialog';
+import { MembershipPlanFilters } from './membership-plan-filters';
+import { MembershipPlanStats } from './membership-plan-stats';
+import { MembershipPlanTable } from './membership-plan-table';
+import { MembershipPlanTierCards } from './membership-plan-tier-cards';
 
 export function MembershipPlansView() {
   const [createOpen, setCreateOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const { data: plans = [], isLoading, error } = useMembershipPlans();
 
   const filtered = plans.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && p.isActive) ||
-      (statusFilter === "inactive" && !p.isActive);
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && p.isActive) ||
+      (statusFilter === 'inactive' && !p.isActive);
     return matchesSearch && matchesStatus;
   });
 
@@ -61,8 +61,8 @@ export function MembershipPlansView() {
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          Couldn't load membership plans. Is the API running at{" "}
-          {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}?
+          Couldn't load membership plans. Is the API running at{' '}
+          {process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}?
         </div>
       )}
 
@@ -95,7 +95,7 @@ export function MembershipPlansView() {
           <p>
             <span className="font-semibold text-gray-900">
               Tier Synchronization & Billing Engine
-            </span>{" "}
+            </span>{' '}
             — Plans are linked to the automated billing control. Updates take effect at 00:00 UTC.
           </p>
         </div>

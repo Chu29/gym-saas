@@ -1,5 +1,5 @@
-export type BillingCycle = "MONTHLY" | "QUARTERLY" | "HALF_YEARLY" | "ANNUAL";
-export type DurationUnit = "DAY" | "MONTH" | "YEAR";
+export type BillingCycle = 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY' | 'ANNUAL';
+export type DurationUnit = 'DAY' | 'MONTH' | 'YEAR';
 
 export interface MembershipPlan {
   id: string;

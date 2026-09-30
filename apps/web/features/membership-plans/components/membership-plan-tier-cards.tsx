@@ -1,25 +1,25 @@
 // apps/web/features/membership-plans/components/membership-plan-tier-cards.tsx
-import { Pencil, Users } from "lucide-react";
-import { formatFCFA } from "../lib/format";
-import type { MembershipPlan } from "../types";
-import { IconMenu } from "./icon-menu";
+import { Pencil, Users } from 'lucide-react';
+import { formatFCFA } from '../lib/format';
+import type { MembershipPlan } from '../types';
+import { IconMenu } from './icon-menu';
 
-const TAGS = ["BASE ACCESS", "VALUE BUNDLE", "COMMITTED TIER", "BEST VALUE"];
+const TAGS = ['BASE ACCESS', 'VALUE BUNDLE', 'COMMITTED TIER', 'BEST VALUE'];
 const BLURBS = [
-  "Standard gym facilities access",
-  "Seasonal commit with 1 guest pass",
-  "Mid-term pass with bi-monthly fitness review",
-  "Annual membership with locker priority",
+  'Standard gym facilities access',
+  'Seasonal commit with 1 guest pass',
+  'Mid-term pass with bi-monthly fitness review',
+  'Annual membership with locker priority',
 ];
 
 function monthsOf(plan: MembershipPlan) {
-  if (plan.durationUnit === "YEAR") return plan.durationValue * 12;
-  if (plan.durationUnit === "DAY") return plan.durationValue / 30;
+  if (plan.durationUnit === 'YEAR') return plan.durationValue * 12;
+  if (plan.durationUnit === 'DAY') return plan.durationValue / 30;
   return plan.durationValue;
 }
 
 function savingsFor(plans: MembershipPlan[], plan: MembershipPlan) {
-  const monthly = plans.find((p) => p.durationUnit === "MONTH" && p.durationValue === 1);
+  const monthly = plans.find((p) => p.durationUnit === 'MONTH' && p.durationValue === 1);
   if (!monthly || plan.id === monthly.id) return null;
   const equivalentCost = monthly.priceCents * monthsOf(plan);
   const savings = equivalentCost - plan.priceCents;
@@ -35,10 +35,10 @@ export function MembershipPlanTierCards({ plans }: { plans: MembershipPlan[] }) 
       {active.map((plan, i) => {
         const savings = savingsFor(plans, plan);
         const durationSuffix =
-          plan.durationUnit === "MONTH"
+          plan.durationUnit === 'MONTH'
             ? plan.durationValue > 1
               ? `/${plan.durationValue} Months`
-              : "/Month"
+              : '/Month'
             : `/${plan.durationValue} ${plan.durationUnit.toLowerCase()}`;
 
         return (
@@ -101,8 +101,8 @@ export function MembershipPlanTierCards({ plans }: { plans: MembershipPlan[] }) 
               </button>
               <IconMenu
                 items={[
-                  { label: "View", onClick: () => {} },
-                  { label: "Duplicate", onClick: () => {} },
+                  { label: 'View', onClick: () => {} },
+                  { label: 'Duplicate', onClick: () => {} },
                 ]}
               />
             </div>

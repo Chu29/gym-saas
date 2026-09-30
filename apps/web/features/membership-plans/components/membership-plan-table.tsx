@@ -1,11 +1,11 @@
 // apps/web/features/membership-plans/components/membership-plan-table.tsx
-"use client";
+'use client';
 
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useDeactivateMembershipPlan } from "../hooks/use-membership-plans";
-import { formatBillingCycle, formatFCFA } from "../lib/format";
-import type { MembershipPlan } from "../types";
-import { IconMenu } from "./icon-menu";
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useDeactivateMembershipPlan } from '../hooks/use-membership-plans';
+import { formatBillingCycle, formatFCFA } from '../lib/format';
+import type { MembershipPlan } from '../types';
+import { IconMenu } from './icon-menu';
 
 export function MembershipPlanTable({
   plans,
@@ -59,12 +59,12 @@ export function MembershipPlanTable({
                   {formatFCFA(plan.priceCents)}
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-700">
-                  {plan.durationValue}{" "}
-                  {plan.durationUnit === "MONTH"
+                  {plan.durationValue}{' '}
+                  {plan.durationUnit === 'MONTH'
                     ? plan.durationValue > 1
-                      ? "Months"
-                      : "Month"
-                    : plan.durationUnit.toLowerCase() + (plan.durationValue > 1 ? "s" : "")}
+                      ? 'Months'
+                      : 'Month'
+                    : plan.durationUnit.toLowerCase() + (plan.durationValue > 1 ? 's' : '')}
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-700">
                   {formatBillingCycle(plan.billingCycle)}
@@ -80,15 +80,15 @@ export function MembershipPlanTable({
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex items-center gap-1.5 font-semibold text-xs ${
-                      plan.isActive ? "text-emerald-700" : "text-gray-500"
+                      plan.isActive ? 'text-emerald-700' : 'text-gray-500'
                     }`}
                   >
                     <span
                       className={`h-1.5 w-1.5 rounded-full ${
-                        plan.isActive ? "bg-emerald-600" : "bg-gray-400"
+                        plan.isActive ? 'bg-emerald-600' : 'bg-gray-400'
                       }`}
                     />
-                    {plan.isActive ? "Active" : "Inactive"}
+                    {plan.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -108,7 +108,7 @@ export function MembershipPlanTable({
                     <IconMenu
                       items={[
                         {
-                          label: "Deactivate",
+                          label: 'Deactivate',
                           onClick: () => deactivate.mutate(plan.id),
                           danger: true,
                         },

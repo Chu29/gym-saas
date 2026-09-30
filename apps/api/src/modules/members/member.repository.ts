@@ -1,17 +1,13 @@
-import { randomBytes } from "node:crypto";
-import { Inject, Injectable } from "@nestjs/common";
-import { MemberStatus, PrismaClient } from "@repo/database";
-import * as bcrypt from "bcrypt";
-import { PRISMA_CLIENT } from "../../database/prisma.module.js";
-import { CreateMemberDto, UpdateMemberDto } from "./member.dto.js";
+import { Inject, Injectable } from '@nestjs/common';
+import type { MemberStatus, PrismaClient } from '@repo/database';
+import { PRISMA_CLIENT } from '../../database/prisma.module.js';
+import type { CreateMemberDto, UpdateMemberDto } from './member.dto.js';
 
 @Injectable()
 export class MemberRepository {
   constructor(@Inject(PRISMA_CLIENT) private readonly prisma: PrismaClient) {}
 
   async create(tenantId: string, dto: CreateMemberDto) {
-    const tempPassword = randomBytes(6).toString("hex");
-    const passwordHash = await bcrypt.hash(tempPassword, 10);
     const membershipNo = `M-${Date.now().toString(36).toUpperCase()}`;
 
     // User + MemberProfile must succeed together, or not at all.
@@ -20,8 +16,7 @@ export class MemberRepository {
         data: {
           tenantId,
           email: dto.email,
-          passwordHash,
-          role: "MEMBER",
+          role: 'MEMBER',
           firstName: dto.firstName,
           lastName: dto.lastName,
         },
@@ -39,7 +34,7 @@ export class MemberRepository {
       return { user, member };
     });
 
-    return { ...result, tempPassword }; // service decides what to expose/send
+    return result;
   }
 
   findAll(tenantId: string, status?: string) {
@@ -49,7 +44,7 @@ export class MemberRepository {
         ...(status ? { status: status as MemberStatus } : {}),
       },
       include: { user: true, plan: true },
-      orderBy: { joinedAt: "desc" },
+      orderBy: { joinedAt: 'desc' },
     });
   }
 
@@ -86,7 +81,7 @@ export class MemberRepository {
     });
   }
 
-  async setStatus(tenantId: string, id: string, status: "ACTIVE" | "FROZEN" | "CANCELLED") {
+  async setStatus(tenantId: string, id: string, status: 'ACTIVE' | 'FROZEN' | 'CANCELLED') {
     const { count } = await this.prisma.memberProfile.updateMany({
       where: { id, tenantId },
       data: { status },

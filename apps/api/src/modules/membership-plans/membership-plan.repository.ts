@@ -1,7 +1,7 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { PrismaClient } from "@repo/database";
-import { PRISMA_CLIENT } from "../../database/prisma.module.js";
-import { CreateMembershipPlanDto, UpdateMembershipPlanDto } from "./membership-plan.dto.js";
+import { Inject, Injectable } from '@nestjs/common';
+import { PrismaClient } from '@repo/database';
+import { PRISMA_CLIENT } from '../../database/prisma.module.js';
+import { CreateMembershipPlanDto, UpdateMembershipPlanDto } from './membership-plan.dto.js';
 
 @Injectable()
 export class MembershipPlanRepository {
@@ -14,7 +14,7 @@ export class MembershipPlanRepository {
   findAll(tenantId: string, activeOnly = false) {
     return this.prisma.subscriptionPlan.findMany({
       where: { tenantId, ...(activeOnly ? { isActive: true } : {}) },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

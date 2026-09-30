@@ -16,7 +16,7 @@ export class TenantService {
   async createGymTenant(clerkId: string, dto: CreateTenantDto) {
     const formattedSlug = dto.slug.toLowerCase().trim().replace(/\s+/g, '-');
 
-    // Check if user already has a tenant
+    // Check if user exists and already has a tenant
     const existingUser = await this.prisma.user.findUnique({
       where: { clerkId },
     });
@@ -33,6 +33,9 @@ export class TenantService {
       throw new ConflictException('This gym URL slug is already taken.');
     }
 
+    // Determine owner email from user record or DTO payload
+    const ownerEmail = existingUser?.email || dto.ownerEmail || '';
+
     // Atomic transaction: Create Tenant and assign owner User role
     const tenant = await this.prisma
       .$transaction(async (tx: Prisma.TransactionClient) => {
@@ -41,6 +44,7 @@ export class TenantService {
             name: dto.name,
             slug: formattedSlug,
             status: 'TRIAL',
+            ownerEmail: ownerEmail, // <--- Fixed: Added required ownerEmail property
           },
         });
 
@@ -52,7 +56,7 @@ export class TenantService {
           },
           create: {
             clerkId,
-            email: '', // Syncs via Clerk Webhook
+            email: ownerEmail, // Syncs via Clerk Webhook
             firstName: '',
             lastName: '',
             role: 'GYM_ADMIN',

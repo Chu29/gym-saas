@@ -1,24 +1,23 @@
 import { Module } from '@nestjs/common';
-import { createObserveModule } from '@nestjs/observe';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module.js';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { PrismaModule } from './prisma/prisma.module.js';
+import { ServicesModule } from './services/services.module.js';
+import { TenantController } from './tenant/tenant.controller.js';
+import { TenantService } from './tenant/tenant.service.js';
+import { WebhooksModule } from './webhooks/webhooks.module.js';
 
 @Module({
   imports: [
-    // 1. ObserveModule configuration
-    // ObserveModule.forRoot({
-    //   appKey: process.env.OBSERVE_APP_KEY || 'YOUR_APP_KEY',
-    //   appSecret: process.env.OBSERVE_APP_SECRET || 'YOUR_APP_SECRET',
-    //   serviceId: 'api',
-    // }),
-
-    // 2. NestJS Feature Modules go directly in the imports array:
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    ServicesModule,
+    WebhooksModule,
     SuperAdminModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, TenantController],
+  providers: [AppService, TenantService],
 })
 export class AppModule {}

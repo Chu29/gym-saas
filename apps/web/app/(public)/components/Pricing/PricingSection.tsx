@@ -19,7 +19,7 @@ const PLANS: PricingPlan[] = [
       'Member Self-Service App',
     ],
     ctaText: 'Start Free Trial',
-    ctaHref: '/login?plan=starter',
+    ctaHref: '/sign-up?plan=starter',
   },
   {
     name: 'Growth / Pro',
@@ -36,7 +36,7 @@ const PLANS: PricingPlan[] = [
       'Automated SMS & WhatsApp Triggers',
     ],
     ctaText: 'Start Free 14-Day Trial',
-    ctaHref: '/login?plan=pro',
+    ctaHref: '/sign-up?plan=pro',
   },
   {
     name: 'Enterprise & Multi-Location',

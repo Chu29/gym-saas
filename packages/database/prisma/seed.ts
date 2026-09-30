@@ -1,25 +1,27 @@
-// Minimal DEVELOPMENT seed: 3 SaasPlans, 1 global SUPER_ADMIN,
-// 1 demo Tenant (+ Gym Admin, Plan, Service).
-// Safe to run repeatedly (idempotent).
-//
-// passwordHash is a deliberate placeholder, NOT a real hash and NOT a real password.
-// These accounts cannot log in. The authentication phase will replace how hashes are made.
 import { BillingCycle, prisma, ServiceCategory, TenantStatus, UserRole } from '../src/index';
 
-const DEV_PLACEHOLDER_HASH = 'DEV_ONLY_PLACEHOLDER__NOT_A_REAL_HASH';
+// ==========================================
+// DEVELOPMENT SEED
+// ==========================================
 
-// SaasPlan.maxMembers/maxStaff are required Ints (no "unlimited" representation
-// in the schema). 999999 is a placeholder sentinel for Enterprise, chosen for
-// the dev seed — revisit if the app ever needs to branch on "is this plan
-// actually unlimited" logic.
+// SaaS plans
 const UNLIMITED_SENTINEL = 999_999;
 
-// --- Platform-level SaaS plans (Super Admin module) ---
-// Codes are uppercase per the schema's own documented convention
-// (`code String @unique // STARTER, PRO, ENTERPRISE`).
 const SAAS_PLANS = [
-  { code: 'STARTER', name: 'Starter', priceCents: 4900, maxMembers: 100, maxStaff: 2 },
-  { code: 'PRO', name: 'Pro', priceCents: 14900, maxMembers: 500, maxStaff: 10 },
+  {
+    code: 'STARTER',
+    name: 'Starter',
+    priceCents: 4900,
+    maxMembers: 100,
+    maxStaff: 2,
+  },
+  {
+    code: 'PRO',
+    name: 'Pro',
+    priceCents: 14900,
+    maxMembers: 500,
+    maxStaff: 10,
+  },
   {
     code: 'ENTERPRISE',
     name: 'Enterprise',
@@ -29,39 +31,99 @@ const SAAS_PLANS = [
   },
 ] as const;
 
+function seedTenant(slug: string, name: string) {
+  return prisma.tenant.upsert({
+    where: { slug },
+    update: {},
+    create: {
+      name,
+      slug,
+      status: TenantStatus.ACTIVE,
+    },
+  });
+}
+
+function seedUser(
+  tenantId: string,
+  email: string,
+  role: UserRole,
+  firstName: string,
+  lastName: string,
+) {
+  return prisma.user.upsert({
+    where: {
+      tenantId_email: {
+        tenantId,
+        email,
+      },
+    },
+    update: {},
+    create: {
+      tenantId,
+      email,
+      role,
+      firstName,
+      lastName,
+    },
+  });
+}
+
+async function seedSauna(tenantId: string) {
+  const existing = await prisma.service.findFirst({
+    where: {
+      tenantId,
+      name: 'Sauna',
+    },
+  });
+
+  if (existing) return;
+
+  await prisma.service.create({
+    data: {
+      tenantId,
+      name: 'Sauna',
+      category: ServiceCategory.SAUNA,
+      tokenCost: 2,
+    },
+  });
+}
+
 async function main() {
-  // --- SaasPlan seeding (upsert by unique `code`) ---
-  for (const p of SAAS_PLANS) {
+  // ==========================================
+  // PLATFORM-LEVEL SaaS PLANS
+  // ==========================================
+
+  for (const plan of SAAS_PLANS) {
     await prisma.saasPlan.upsert({
-      where: { code: p.code },
+      where: { code: plan.code },
       update: {},
       create: {
-        code: p.code,
-        name: p.name,
-        priceCents: p.priceCents,
+        code: plan.code,
+        name: plan.name,
+        priceCents: plan.priceCents,
         currency: 'USD',
-        maxMembers: p.maxMembers,
-        maxStaff: p.maxStaff,
+        maxMembers: plan.maxMembers,
+        maxStaff: plan.maxStaff,
       },
     });
   }
 
-  // --- Global SUPER_ADMIN (tenantId = null) ---
-  // Filtering by `tenantId: null` in a WHERE clause is fine on MongoDB, but
-  // `create()` rejects an explicit `null` for an optional field, so tenantId
-  // is simply OMITTED below — an absent key is what "no tenant" means here.
+  // ==========================================
+  // GLOBAL SUPER ADMIN
+  // ==========================================
+
   const SUPER_ADMIN_EMAIL = 'superadmin@platform.test';
-  // Checking by email alone (not tenantId: null) — Prisma's `tenantId: null`
-  // filter doesn't reliably match a document where tenantId is simply absent
-  // vs. explicitly null on MongoDB. Email is unique enough for this dev seed.
+
   const existingSuperAdmin = await prisma.user.findFirst({
-    where: { email: SUPER_ADMIN_EMAIL },
+    where: {
+      email: SUPER_ADMIN_EMAIL,
+    },
   });
+
   if (!existingSuperAdmin) {
     await prisma.user.create({
       data: {
         email: SUPER_ADMIN_EMAIL,
-        passwordHash: DEV_PLACEHOLDER_HASH,
         role: UserRole.SUPER_ADMIN,
         firstName: 'Platform',
         lastName: 'Admin',
@@ -69,39 +131,57 @@ async function main() {
     });
   }
 
-  // --- Demo tenant, linked to the "PRO" SaasPlan so the relation is exercised ---
-  const proPlan = await prisma.saasPlan.findUniqueOrThrow({ where: { code: 'PRO' } });
+  // ==========================================
+  // DEMO GYM
+  // ==========================================
 
-  const DEMO_OWNER_EMAIL = 'admin@demo-gym.test';
-  const tenant = await prisma.tenant.upsert({
-    where: { slug: 'demo-gym' },
-    update: {},
-    create: {
-      name: 'Demo Gym',
-      slug: 'demo-gym',
-      status: TenantStatus.ACTIVE, // instant-activation model: tenants start ACTIVE
-      ownerEmail: DEMO_OWNER_EMAIL,
-      saasPlanId: proPlan.id,
+  const proPlan = await prisma.saasPlan.findUniqueOrThrow({
+    where: {
+      code: 'PRO',
     },
   });
 
-  await prisma.user.upsert({
-    where: { tenantId_email: { tenantId: tenant.id, email: DEMO_OWNER_EMAIL } },
-    update: {},
-    create: {
-      tenantId: tenant.id,
-      email: DEMO_OWNER_EMAIL,
-      passwordHash: DEV_PLACEHOLDER_HASH,
-      role: UserRole.GYM_ADMIN,
-      firstName: 'Demo',
-      lastName: 'Admin',
-    },
-  });
+  const tenant = await seedTenant('demo-gym', 'Demo Gym');
 
-  // Plan and Service have no natural unique key, so check-then-create.
+  // Link demo gym to the PRO SaaS plan.
+  if (!tenant.saasPlanId) {
+    await prisma.tenant.update({
+      where: {
+        id: tenant.id,
+      },
+      data: {
+        saasPlanId: proPlan.id,
+      },
+    });
+  }
+
+  const admin = await seedUser(
+    tenant.id,
+    'admin@demo-gym.test',
+    UserRole.GYM_ADMIN,
+    'Demo',
+    'Admin',
+  );
+
+  const frontDesk = await seedUser(
+    tenant.id,
+    'frontdesk@demo-gym.test',
+    UserRole.FRONT_DESK,
+    'Demo',
+    'FrontDesk',
+  );
+
+  // ==========================================
+  // DEMO GYM SUBSCRIPTION PLAN
+  // ==========================================
+
   const existingPlan = await prisma.subscriptionPlan.findFirst({
-    where: { tenantId: tenant.id, name: 'Premium' },
+    where: {
+      tenantId: tenant.id,
+      name: 'Premium',
+    },
   });
+
   if (!existingPlan) {
     await prisma.subscriptionPlan.create({
       data: {
@@ -115,34 +195,68 @@ async function main() {
     });
   }
 
-  const existingService = await prisma.service.findFirst({
-    where: { tenantId: tenant.id, name: 'Sauna' },
-  });
-  if (!existingService) {
-    await prisma.service.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Sauna',
-        category: ServiceCategory.SAUNA,
-        tokenCost: 2,
-      },
-    });
-  }
+  // ==========================================
+  // DEMO GYM SERVICE
+  // ==========================================
 
-  // Read back to prove everything, including the new relations, works end to end.
-  const _saasPlanCount = await prisma.saasPlan.count();
-  const _superAdminCount = await prisma.user.count({
-    where: { role: UserRole.SUPER_ADMIN, tenantId: null },
+  await seedSauna(tenant.id);
+
+  // ==========================================
+  // SECOND GYM
+  // Used for tenant-isolation testing
+  // ==========================================
+
+  const otherTenant = await seedTenant('other-gym', 'Other Gym');
+
+  const otherAdmin = await seedUser(
+    otherTenant.id,
+    'admin@other-gym.test',
+    UserRole.GYM_ADMIN,
+    'Other',
+    'Admin',
+  );
+
+  await seedSauna(otherTenant.id);
+
+  // ==========================================
+  // VERIFICATION
+  // ==========================================
+
+  const saasPlanCount = await prisma.saasPlan.count();
+
+  const superAdminCount = await prisma.user.count({
+    where: {
+      role: UserRole.SUPER_ADMIN,
+      tenantId: null,
+    },
   });
-  const _check = await prisma.tenant.findUniqueOrThrow({
-    where: { slug: 'demo-gym' },
-    include: { users: true, plans: true, services: true, saasPlan: true },
+
+  await prisma.tenant.findUniqueOrThrow({
+    where: {
+      slug: 'demo-gym',
+    },
+    include: {
+      users: true,
+      plans: true,
+      services: true,
+      saasPlan: true,
+    },
   });
+
+  console.log('\nDev seed completed successfully.');
+  console.log(`SaaS plans: ${saasPlanCount}`);
+  console.log(`Global super admins: ${superAdminCount}`);
+
+  console.log('\nDev user ids:');
+  console.log(`  demo-gym  GYM_ADMIN   ${admin.id}`);
+  console.log(`  demo-gym  FRONT_DESK  ${frontDesk.id}`);
+  console.log(`  other-gym GYM_ADMIN   ${otherAdmin.id}\n`);
 }
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (_e) => {
+  .catch(async (error) => {
+    console.error(error);
     await prisma.$disconnect();
     process.exit(1);
   });

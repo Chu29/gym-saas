@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: Readonly<{ children: React.Reac
       }
 
       try {
-        const response = await fetch('http://localhost:3001/tenants/status', {
+        const response = await fetch('http://localhost:4000/tenants/status', {
           credentials: 'include',
         });
 

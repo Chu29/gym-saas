@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo dev",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "lint:staged": "biome check --staged --no-errors-on-unmatched",

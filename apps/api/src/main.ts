@@ -11,9 +11,9 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
 
-  // Enable CORS for Next.js frontend calls
+  // Enable CORS for frontend calls
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
   });
 
@@ -29,8 +29,8 @@ async function bootstrap() {
     }),
   );
 
-  // Attach Clerk Express Middleware globally
-  app.use(clerkMiddleware());
+  // Tenant onboarding uses Clerk; other routes use their own guards.
+  app.use('/tenants', clerkMiddleware());
 
   const port = process.env.PORT ?? 4000;
   await app.listen(port);

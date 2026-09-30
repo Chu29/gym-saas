@@ -21,6 +21,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,
@@ -31,8 +32,10 @@ async function bootstrap() {
   // Attach Clerk Express Middleware globally
   app.use(clerkMiddleware());
 
-  const port = process.env.PORT ?? 3001;
+  const port = process.env.PORT ?? 4000;
   await app.listen(port);
+
   logger.log(`Application is running on: http://localhost:${port}`);
 }
+
 bootstrap();

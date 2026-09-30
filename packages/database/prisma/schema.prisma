@@ -175,6 +175,7 @@ model Service {
   rooms       RoomStation[]
   redemptions ServiceRedemption[]
 
+  @@unique([tenantId, name])
   @@index([tenantId, isActive])
   @@map("services")
 }

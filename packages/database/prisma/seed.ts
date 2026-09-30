@@ -1,7 +1,5 @@
 import { BillingCycle, prisma, ServiceCategory, TenantStatus, UserRole } from '../src/index';
 
-const DEV_PLACEHOLDER_HASH = 'DEV_ONLY_PLACEHOLDER__NOT_A_REAL_HASH';
-
 function seedTenant(slug: string, name: string) {
   return prisma.tenant.upsert({
     where: { slug },
@@ -21,9 +19,9 @@ function seedUser(
     where: { tenantId_email: { tenantId, email } },
     update: {},
     create: {
+      clerkId: `seed_${tenantId}_${email}`,
       tenantId,
       email,
-      passwordHash: DEV_PLACEHOLDER_HASH,
       role,
       firstName,
       lastName,

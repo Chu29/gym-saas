@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Icon } from './icon';
 
 const ITEMS = [
-  { href: '/admin', label: 'Overview', icon: 'grid_view' },
+  { href: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
   { href: '/front-desk', label: 'Front desk', icon: 'counter_1' },
   { href: '/terminal', label: 'Terminal', icon: 'point_of_sale' },
   { href: '/admin/memberships', label: 'Memberships', icon: 'card_membership' },

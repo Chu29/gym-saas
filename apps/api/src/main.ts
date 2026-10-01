@@ -1,3 +1,14 @@
+import * as path from 'node:path';
+
+// Load apps/api/.env (Node 20.6+ built-in, no dotenv dependency needed)
+try {
+  process.loadEnvFile(path.resolve(process.cwd(), 'apps/api/.env'));
+} catch {
+  try {
+    process.loadEnvFile();
+  } catch {}
+}
+
 import { clerkMiddleware } from '@clerk/express';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -29,8 +40,13 @@ async function bootstrap() {
     }),
   );
 
-  // Tenant onboarding uses Clerk; other routes use their own guards.
-  app.use('/tenants', clerkMiddleware());
+  // Attach Clerk Express Middleware globally
+  app.use(
+    clerkMiddleware({
+      publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+      secretKey: process.env.CLERK_SECRET_KEY,
+    }),
+  );
 
   const port = process.env.PORT ?? 4000;
   await app.listen(port);

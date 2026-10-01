@@ -50,7 +50,7 @@ export default function OnboardingForm({ plan }: OnboardingFormProps) {
       await response.json();
 
       // Redirect to gym admin dashboard
-      router.push('/gym-admin');
+      router.push('/admin/overview');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

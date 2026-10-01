@@ -38,8 +38,8 @@ export default function AuthLayout({ children }: Readonly<{ children: React.Reac
             // User has tenant, redirect to appropriate dashboard
             const role = user.publicMetadata.role as string;
 
-            if (role === 'GYM_ADMIN' && pathname !== '/gym-admin') {
-              router.push('/gym-admin');
+            if (role === 'GYM_ADMIN' && pathname !== '/admin/memberships') {
+              router.push('/admin/memberships');
             } else if (role === 'SUPER_ADMIN' && pathname !== '/super-admin') {
               router.push('/super-admin');
             } else if (role === 'MEMBER' && pathname !== '/member') {

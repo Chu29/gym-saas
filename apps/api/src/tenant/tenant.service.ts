@@ -24,6 +24,7 @@ export class TenantService {
     // Check if user exists and already has a tenant
     const existingUser = await this.prisma.user.findUnique({
       where: { clerkId },
+      include: { tenant: true },
     });
 
     const clerkUser = await this.clerkClient.users.getUser(clerkId);

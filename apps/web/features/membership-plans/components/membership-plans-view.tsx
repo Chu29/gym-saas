@@ -61,8 +61,8 @@ export function MembershipPlansView() {
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          Couldn't load membership plans. Is the API running at{' '}
-          {process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}?
+          Couldn't load membership plans. unable to fetch data from the server. Please try again
+          later.
         </div>
       )}
 

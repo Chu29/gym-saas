@@ -8,6 +8,7 @@ const ITEMS = [
   { href: '/admin', label: 'Overview', icon: 'grid_view' },
   { href: '/front-desk', label: 'Front desk', icon: 'counter_1' },
   { href: '/terminal', label: 'Terminal', icon: 'point_of_sale' },
+  { href: '/admin/memberships', label: 'Memberships', icon: 'card_membership' },
   { href: '/admin/services', label: 'Services', icon: 'loyalty' },
 ];
 

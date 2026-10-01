@@ -49,14 +49,14 @@ async function seedSauna(tenantId: string) {
 async function main() {
   // Demo gym
   const tenant = await seedTenant('demo-gym', 'Demo Gym');
-  const admin = await seedUser(
+  const _admin = await seedUser(
     tenant.id,
     'admin@demo-gym.test',
     UserRole.GYM_ADMIN,
     'Demo',
     'Admin',
   );
-  const frontDesk = await seedUser(
+  const _frontDesk = await seedUser(
     tenant.id,
     'frontdesk@demo-gym.test',
     UserRole.FRONT_DESK,
@@ -83,7 +83,7 @@ async function main() {
 
   // Second gym, used to test tenant isolation
   const otherTenant = await seedTenant('other-gym', 'Other Gym');
-  const otherAdmin = await seedUser(
+  const _otherAdmin = await seedUser(
     otherTenant.id,
     'admin@other-gym.test',
     UserRole.GYM_ADMIN,
@@ -96,17 +96,11 @@ async function main() {
     where: { slug: 'demo-gym' },
     include: { users: true, plans: true, services: true },
   });
-
-  console.log('\nDev user ids (use as the x-dev-user-id header):');
-  console.log(`  demo-gym  GYM_ADMIN   ${admin.id}`);
-  console.log(`  demo-gym  FRONT_DESK  ${frontDesk.id}`);
-  console.log(`  other-gym GYM_ADMIN   ${otherAdmin.id}\n`);
 }
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (e) => {
-    console.error(e);
+  .catch(async (_e) => {
     await prisma.$disconnect();
     process.exit(1);
   });

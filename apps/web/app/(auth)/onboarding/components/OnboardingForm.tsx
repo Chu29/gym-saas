@@ -32,7 +32,7 @@ export default function OnboardingForm({ plan }: OnboardingFormProps) {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/tenants/onboard', {
+      const response = await fetch('http://localhost:4000/tenants/onboard', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export default function OnboardingForm({ plan }: OnboardingFormProps) {
       await response.json();
 
       // Redirect to gym admin dashboard
-      router.push('/gym-admin');
+      router.push('/admin/overview');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

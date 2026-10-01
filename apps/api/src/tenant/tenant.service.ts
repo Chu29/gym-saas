@@ -16,6 +16,11 @@ export class TenantService {
   async createGymTenant(clerkId: string, dto: CreateTenantDto) {
     const formattedSlug = dto.slug.toLowerCase().trim().replace(/\s+/g, '-');
 
+    // Log the selected plan for debugging
+    if (dto.plan) {
+      this.logger.log(`User ${clerkId} selected plan: ${dto.plan}`);
+    }
+
     // Check if user exists and already has a tenant
     const existingUser = await this.prisma.user.findUnique({
       where: { clerkId },

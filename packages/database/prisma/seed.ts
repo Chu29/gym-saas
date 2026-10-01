@@ -12,10 +12,6 @@ import { BillingCycle, prisma, ServiceCategory, TenantStatus, UserRole } from '.
 // - other-gym with GYM_ADMIN
 // - Sauna service for both gyms
 //
-// Because clerkId is required and real Clerk users do not exist
-// in the development seed, existing User documents are cleared
-// before recreating the development users.
-//
 // Do NOT use this seed against a production database.
 //
 
@@ -65,8 +61,15 @@ async function seedSaasPlans() {
 async function seedSuperAdmin() {
   const SUPER_ADMIN_EMAIL = 'superadmin@platform.test';
 
-  return prisma.user.create({
-    data: {
+  return prisma.user.upsert({
+    where: { clerkId: 'dev_clerk_super_admin' },
+    update: {
+      email: SUPER_ADMIN_EMAIL,
+      role: UserRole.SUPER_ADMIN,
+      firstName: 'Platform',
+      lastName: 'Admin',
+    },
+    create: {
       clerkId: 'dev_clerk_super_admin',
       email: SUPER_ADMIN_EMAIL,
       role: UserRole.SUPER_ADMIN,
@@ -105,8 +108,15 @@ async function seedUser(
   firstName: string,
   lastName: string,
 ) {
-  return prisma.user.create({
-    data: {
+  return prisma.user.upsert({
+    where: { tenantId_email: { tenantId, email } },
+    update: {
+      clerkId,
+      role,
+      firstName,
+      lastName,
+    },
+    create: {
       clerkId,
       tenantId,
       email,
@@ -140,14 +150,6 @@ async function seedSauna(tenantId: string) {
 }
 
 async function main() {
-  // ==========================================
-  // DEVELOPMENT USER RESET
-  // ==========================================
-
-  const { count } = await prisma.user.deleteMany({});
-
-  console.log(`Cleared ${count} development user document(s).`);
-
   // ==========================================
   // PLATFORM-LEVEL SaaS PLANS
   // ==========================================

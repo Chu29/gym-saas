@@ -74,7 +74,7 @@ export function PlanModal({ isOpen, onClose, onSuccess, initialData }: PlanModal
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const url = isEditing
         ? `${apiUrl}/super-admin/plans/${initialData?.id}`
         : `${apiUrl}/super-admin/plans`;

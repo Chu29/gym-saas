@@ -29,10 +29,10 @@ async function bootstrap() {
     }),
   );
 
-  // Attach Clerk Express Middleware globally
-  app.use(clerkMiddleware());
+  // Tenant onboarding uses Clerk; other routes use their own guards.
+  app.use('/tenants', clerkMiddleware());
 
-  const port = process.env.PORT ?? 3001;
+  const port = process.env.PORT ?? 4000;
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);

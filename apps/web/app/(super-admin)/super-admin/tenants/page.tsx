@@ -22,7 +22,7 @@ const STATUS_STYLES: Record<Tenant['status'], { badge: string; dot: string }> = 
 
 async function getTenants(): Promise<Tenant[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const res = await fetch(`${apiUrl}/super-admin/tenants`, {
       cache: 'no-store',
     });

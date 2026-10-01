@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { MemberModule } from './modules/members/member.module.js';
 import { MembershipPlanModule } from './modules/membership-plans/membership-plan.module.js';
+import { SuperAdminModule } from './modules/super-admin/super-admin.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ServicesModule } from './services/services.module.js';
 import { TenantController } from './tenant/tenant.controller.js';
@@ -20,6 +21,7 @@ import { WebhooksModule } from './webhooks/webhooks.module.js';
     MembershipPlanModule,
     ServicesModule,
     WebhooksModule,
+    SuperAdminModule,
   ],
   controllers: [AppController, TenantController],
   providers: [AppService, TenantService],

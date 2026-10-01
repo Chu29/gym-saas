@@ -1,16 +1,107 @@
 import { BillingCycle, prisma, ServiceCategory, TenantStatus, UserRole } from '../src/index';
 
-const DEV_PLACEHOLDER_HASH = 'DEV_ONLY_PLACEHOLDER__NOT_A_REAL_HASH';
+// ==========================================
+// DEVELOPMENT SEED
+// ==========================================
+//
+// This seed is intended for local development/testing.
+// It creates:
+// - 3 SaaS plans
+// - 1 global SUPER_ADMIN
+// - demo-gym with GYM_ADMIN + FRONT_DESK
+// - other-gym with GYM_ADMIN
+// - Sauna service for both gyms
+//
+// Do NOT use this seed against a production database.
+//
 
-function seedTenant(slug: string, name: string) {
-  return prisma.tenant.upsert({
-    where: { slug },
-    update: {},
-    create: { name, slug, status: TenantStatus.TRIAL },
+const UNLIMITED_SENTINEL = 999_999;
+
+const SAAS_PLANS = [
+  {
+    code: 'STARTER',
+    name: 'Starter',
+    priceCents: 4900,
+    maxMembers: 100,
+    maxStaff: 2,
+  },
+  {
+    code: 'PRO',
+    name: 'Pro',
+    priceCents: 14900,
+    maxMembers: 500,
+    maxStaff: 10,
+  },
+  {
+    code: 'ENTERPRISE',
+    name: 'Enterprise',
+    priceCents: 29900,
+    maxMembers: UNLIMITED_SENTINEL,
+    maxStaff: UNLIMITED_SENTINEL,
+  },
+] as const;
+
+async function seedSaasPlans() {
+  for (const plan of SAAS_PLANS) {
+    await prisma.saasPlan.upsert({
+      where: { code: plan.code },
+      update: {},
+      create: {
+        code: plan.code,
+        name: plan.name,
+        priceCents: plan.priceCents,
+        currency: 'USD',
+        maxMembers: plan.maxMembers,
+        maxStaff: plan.maxStaff,
+      },
+    });
+  }
+}
+
+async function seedSuperAdmin() {
+  const SUPER_ADMIN_EMAIL = 'superadmin@platform.test';
+
+  return prisma.user.upsert({
+    where: { clerkId: 'dev_clerk_super_admin' },
+    update: {
+      email: SUPER_ADMIN_EMAIL,
+      role: UserRole.SUPER_ADMIN,
+      firstName: 'Platform',
+      lastName: 'Admin',
+    },
+    create: {
+      clerkId: 'dev_clerk_super_admin',
+      email: SUPER_ADMIN_EMAIL,
+      role: UserRole.SUPER_ADMIN,
+      firstName: 'Platform',
+      lastName: 'Admin',
+    },
   });
 }
 
-function seedUser(
+async function seedTenant(slug: string, name: string, ownerEmail: string) {
+  const proPlan = await prisma.saasPlan.findUniqueOrThrow({
+    where: { code: 'PRO' },
+  });
+
+  return prisma.tenant.upsert({
+    where: { slug },
+    update: {
+      ownerEmail,
+      saasPlanId: proPlan.id,
+    },
+    create: {
+      name,
+      slug,
+      status: TenantStatus.ACTIVE,
+      ownerEmail,
+      saasPlanId: proPlan.id,
+    },
+  });
+}
+
+async function seedUser(
+  clerkId: string,
   tenantId: string,
   email: string,
   role: UserRole,
@@ -19,11 +110,16 @@ function seedUser(
 ) {
   return prisma.user.upsert({
     where: { tenantId_email: { tenantId, email } },
-    update: {},
+    update: {
+      clerkId,
+      role,
+      firstName,
+      lastName,
+    },
     create: {
+      clerkId,
       tenantId,
       email,
-      passwordHash: DEV_PLACEHOLDER_HASH,
       role,
       firstName,
       lastName,
@@ -32,10 +128,17 @@ function seedUser(
 }
 
 async function seedSauna(tenantId: string) {
-  const existing = await prisma.service.findFirst({
-    where: { tenantId, name: 'Sauna' },
+  const existingService = await prisma.service.findFirst({
+    where: {
+      tenantId,
+      name: 'Sauna',
+    },
   });
-  if (existing) return;
+
+  if (existingService) {
+    return;
+  }
+
   await prisma.service.create({
     data: {
       tenantId,
@@ -47,30 +150,59 @@ async function seedSauna(tenantId: string) {
 }
 
 async function main() {
-  // Demo gym
-  const tenant = await seedTenant('demo-gym', 'Demo Gym');
-  const _admin = await seedUser(
-    tenant.id,
+  // ==========================================
+  // PLATFORM-LEVEL SaaS PLANS
+  // ==========================================
+
+  await seedSaasPlans();
+
+  // ==========================================
+  // GLOBAL SUPER ADMIN
+  // ==========================================
+
+  const superAdmin = await seedSuperAdmin();
+
+  // ==========================================
+  // DEMO GYM
+  // ==========================================
+
+  const demoTenant = await seedTenant('demo-gym', 'Demo Gym', 'admin@demo-gym.test');
+
+  const admin = await seedUser(
+    'dev_clerk_demo_gym_admin',
+    demoTenant.id,
     'admin@demo-gym.test',
     UserRole.GYM_ADMIN,
     'Demo',
     'Admin',
   );
-  const _frontDesk = await seedUser(
-    tenant.id,
+
+  const frontDesk = await seedUser(
+    'dev_clerk_demo_gym_frontdesk',
+    demoTenant.id,
     'frontdesk@demo-gym.test',
     UserRole.FRONT_DESK,
     'Demo',
     'FrontDesk',
   );
 
+  await seedSauna(demoTenant.id);
+
+  // ==========================================
+  // DEMO GYM SUBSCRIPTION PLAN
+  // ==========================================
+
   const existingPlan = await prisma.subscriptionPlan.findFirst({
-    where: { tenantId: tenant.id, name: 'Premium' },
+    where: {
+      tenantId: demoTenant.id,
+      name: 'Premium',
+    },
   });
+
   if (!existingPlan) {
     await prisma.subscriptionPlan.create({
       data: {
-        tenantId: tenant.id,
+        tenantId: demoTenant.id,
         name: 'Premium',
         monthlyTokenAllowance: 40,
         priceCents: 7900,
@@ -79,28 +211,71 @@ async function main() {
       },
     });
   }
-  await seedSauna(tenant.id);
 
-  // Second gym, used to test tenant isolation
-  const otherTenant = await seedTenant('other-gym', 'Other Gym');
-  const _otherAdmin = await seedUser(
+  // ==========================================
+  // SECOND GYM
+  // Used for tenant-isolation testing
+  // ==========================================
+
+  const otherTenant = await seedTenant('other-gym', 'Other Gym', 'admin@other-gym.test');
+
+  const otherAdmin = await seedUser(
+    'dev_clerk_other_gym_admin',
     otherTenant.id,
     'admin@other-gym.test',
     UserRole.GYM_ADMIN,
     'Other',
     'Admin',
   );
+
   await seedSauna(otherTenant.id);
 
-  await prisma.tenant.findUniqueOrThrow({
-    where: { slug: 'demo-gym' },
-    include: { users: true, plans: true, services: true },
+  // ==========================================
+  // VERIFICATION
+  // ==========================================
+
+  const saasPlanCount = await prisma.saasPlan.count();
+
+  const superAdminCount = await prisma.user.count({
+    where: {
+      role: UserRole.SUPER_ADMIN,
+      tenantId: null,
+    },
   });
+
+  const check = await prisma.tenant.findUniqueOrThrow({
+    where: {
+      slug: 'demo-gym',
+    },
+    include: {
+      users: true,
+      plans: true,
+      services: true,
+      saasPlan: true,
+    },
+  });
+
+  console.log('\nSeed completed successfully.');
+  console.log(`SaaS plans: ${saasPlanCount}`);
+  console.log(`Global super admins: ${superAdminCount}`);
+  console.log(`Demo gym: ${check.slug}`);
+  console.log(`Demo gym SaaS plan: ${check.saasPlan?.code}`);
+  console.log(`Demo gym users: ${check.users.length}`);
+  console.log(`Demo gym plans: ${check.plans.length}`);
+  console.log(`Demo gym services: ${check.services.length}`);
+
+  console.log('\nDevelopment user ids:');
+  console.log(`  super-admin ${superAdmin.id}`);
+  console.log(`  demo-gym  GYM_ADMIN   ${admin.id}`);
+  console.log(`  demo-gym  FRONT_DESK  ${frontDesk.id}`);
+  console.log(`  other-gym GYM_ADMIN   ${otherAdmin.id}`);
 }
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (_e) => {
+  .catch(async (error) => {
+    console.error(error);
     await prisma.$disconnect();
     process.exit(1);
   });
+a

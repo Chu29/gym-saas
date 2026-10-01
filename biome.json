@@ -40,7 +40,8 @@
     "rules": {
       "preset": "recommended",
       "suspicious": {
-        "noConsole": "warn"
+        "noConsole": "warn",
+        "noUnknownAtRules": "off"
       },
       "style": {
         "useImportType": "off"

@@ -16,11 +16,23 @@ export class TenantService {
   async createGymTenant(clerkId: string, dto: CreateTenantDto) {
     const formattedSlug = dto.slug.toLowerCase().trim().replace(/\s+/g, '-');
 
-    // Check if user already has a tenant
+    // Log the selected plan for debugging
+    if (dto.plan) {
+      this.logger.log(`User ${clerkId} selected plan: ${dto.plan}`);
+    }
+
+    // Check if user exists and already has a tenant
     const existingUser = await this.prisma.user.findUnique({
       where: { clerkId },
       include: { tenant: true },
     });
+
+    const clerkUser = await this.clerkClient.users.getUser(clerkId);
+    const ownerEmail = clerkUser.emailAddresses[0]?.emailAddress;
+
+    if (!ownerEmail) {
+      throw new ConflictException('Your Clerk account does not have an email address.');
+    }
 
     if (existingUser?.tenantId) {
       throw new ConflictException('You already have a gym tenant.');
@@ -42,6 +54,7 @@ export class TenantService {
             name: dto.name,
             slug: formattedSlug,
             status: 'TRIAL',
+            ownerEmail,
           },
         });
 
@@ -53,7 +66,7 @@ export class TenantService {
           },
           create: {
             clerkId,
-            email: '', // Syncs via Clerk Webhook
+            email: ownerEmail, // Syncs via Clerk Webhook
             firstName: '',
             lastName: '',
             role: 'GYM_ADMIN',

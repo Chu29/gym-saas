@@ -4,6 +4,7 @@
 import { Download, Plus, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useMembershipPlans } from '../hooks/use-membership-plans';
+import type { MembershipPlan } from '../types';
 import { CreateMembershipPlanDialog } from './create-membership-plan-dialog';
 import { MembershipPlanFilters } from './membership-plan-filters';
 import { MembershipPlanStats } from './membership-plan-stats';
@@ -16,7 +17,7 @@ export function MembershipPlansView() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const { data: plans = [], isLoading, error } = useMembershipPlans();
 
-  const filtered = plans.filter((p) => {
+  const filtered = plans.filter((p: MembershipPlan) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesStatus =
       statusFilter === 'all' ||
@@ -80,8 +81,8 @@ export function MembershipPlansView() {
         onStatusFilterChange={setStatusFilter}
         counts={{
           all: plans.length,
-          active: plans.filter((p) => p.isActive).length,
-          inactive: plans.filter((p) => !p.isActive).length,
+          active: plans.filter((p: MembershipPlan) => p.isActive).length,
+          inactive: plans.filter((p: MembershipPlan) => !p.isActive).length,
         }}
       />
 

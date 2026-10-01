@@ -39,7 +39,7 @@ model Tenant {
   name             String
   slug             String       @unique
   status           TenantStatus @default(ACTIVE) // Instant activation defaults to ACTIVE
-  ownerEmail       String
+  ownerEmail       String?
   saasPlanId       String?      @db.ObjectId
   saasPlan         SaasPlan?    @relation(fields: [saasPlanId], references: [id])
   stripeCustomerId String?

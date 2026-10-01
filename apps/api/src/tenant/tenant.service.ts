@@ -84,16 +84,18 @@ export class TenantService {
         throw error;
       });
 
-    // Update Clerk public metadata so future JWTs carry tenantId
+    // Update Clerk public metadata so future JWTs carry tenantId and gymName
     try {
       await this.clerkClient.users.updateUserMetadata(clerkId, {
         publicMetadata: {
           role: 'GYM_ADMIN',
           tenantId: tenant.id,
+          gymName: tenant.name,
         },
         unsafeMetadata: {
           role: 'GYM_ADMIN',
           tenantId: tenant.id,
+          gymName: tenant.name,
         },
       });
     } catch (error) {

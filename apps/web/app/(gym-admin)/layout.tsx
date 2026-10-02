@@ -21,7 +21,7 @@ export default function GymAdminLayout({ children }: { children: ReactNode }) {
 
       <div className="flex min-h-screen flex-col lg:pl-72">
         <AdminHeader />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1">{children}</main>
       </div>
     </div>
   );

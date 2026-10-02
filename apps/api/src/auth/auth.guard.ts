@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
     }
     const req = context.switchToHttp().getRequest<AuthedRequest>();
     const clerkUserId = getAuth(req).userId;
-    let user: User | null = null;
+    let user: any = null;
 
     if (clerkUserId) {
       user = await this.prisma.user.findUnique({ where: { clerkId: clerkUserId } });

@@ -1,3 +1,4 @@
+import { getAuth } from '@clerk/express';
 import {
   type CanActivate,
   type ExecutionContext,
@@ -28,11 +29,18 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Authentication is not configured');
     }
     const req = context.switchToHttp().getRequest<AuthedRequest>();
-    const header = req.headers['x-dev-user-id'];
-    const userId = typeof header === 'string' ? header : undefined;
-    if (!userId || !OBJECT_ID.test(userId)) throw new UnauthorizedException();
+    const clerkUserId = getAuth(req).userId;
+    let user: any = null;
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (clerkUserId) {
+      user = await this.prisma.user.findUnique({ where: { clerkId: clerkUserId } });
+    } else {
+      const header = req.headers['x-dev-user-id'];
+      const userId = typeof header === 'string' ? header : undefined;
+      if (!userId || !OBJECT_ID.test(userId)) throw new UnauthorizedException();
+      user = await this.prisma.user.findUnique({ where: { id: userId } });
+    }
+
     if (!user?.isActive) throw new UnauthorizedException();
 
     req.user = {

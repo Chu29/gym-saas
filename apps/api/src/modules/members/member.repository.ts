@@ -44,7 +44,11 @@ export class MemberRepository {
         tenantId,
         ...(status ? { status: status as MemberStatus } : {}),
       },
-      include: { user: true, plan: true },
+      include: {
+        user: true,
+        plan: true,
+        attendance: { orderBy: { checkedInAt: 'desc' }, take: 1 },
+      },
       orderBy: { joinedAt: 'desc' },
     });
   }
@@ -52,7 +56,69 @@ export class MemberRepository {
   findOne(tenantId: string, id: string) {
     return this.prisma.memberProfile.findFirst({
       where: { id, tenantId },
-      include: { user: true, plan: true, wallet: true },
+      include: {
+        user: true,
+        plan: true,
+        wallet: true,
+        attendance: { orderBy: { checkedInAt: 'desc' }, take: 30 },
+      },
+    });
+  }
+
+  async updateDetails(
+    tenantId: string,
+    id: string,
+    details: {
+      phone?: string | null;
+      emergencyContactName?: string | null;
+      emergencyContactPhone?: string | null;
+      notes?: string | null;
+      membershipStartsAt?: string | null;
+      membershipEndsAt?: string | null;
+      planId?: string | null;
+    },
+  ) {
+    if (details.planId) {
+      const plan = await this.prisma.subscriptionPlan.findFirst({
+        where: { id: details.planId, tenantId, isActive: true },
+        select: { id: true },
+      });
+      if (!plan) return null;
+    }
+
+    const { membershipStartsAt, membershipEndsAt, ...profileFields } = details;
+    const data = {
+      ...profileFields,
+      ...(membershipStartsAt !== undefined && {
+        membershipStartsAt: membershipStartsAt ? new Date(membershipStartsAt) : null,
+      }),
+      ...(membershipEndsAt !== undefined && {
+        membershipEndsAt: membershipEndsAt ? new Date(membershipEndsAt) : null,
+      }),
+    };
+    const { count } = await this.prisma.memberProfile.updateMany({
+      where: { id, tenantId },
+      data,
+    });
+    if (!count) return null;
+    return this.findOne(tenantId, id);
+  }
+
+  async recordCheckIn(tenantId: string, id: string, note?: string) {
+    const member = await this.prisma.memberProfile.findFirst({
+      where: { id, tenantId },
+      select: { id: true },
+    });
+    if (!member) return null;
+    return this.prisma.memberAttendance.create({
+      data: { tenantId, memberId: id, note },
+    });
+  }
+
+  findStatus(tenantId: string, id: string) {
+    return this.prisma.memberProfile.findFirst({
+      where: { id, tenantId },
+      select: { status: true },
     });
   }
 
@@ -63,6 +129,14 @@ export class MemberRepository {
     if (!member) return null;
 
     const { firstName, lastName, ...memberFields } = dto;
+
+    if (memberFields.planId) {
+      const plan = await this.prisma.subscriptionPlan.findFirst({
+        where: { id: memberFields.planId, tenantId, isActive: true },
+        select: { id: true },
+      });
+      if (!plan) return null;
+    }
 
     return this.prisma.$transaction(async (tx) => {
       if (firstName || lastName) {

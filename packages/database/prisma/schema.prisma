@@ -54,6 +54,7 @@ model Tenant {
   wallets     MemberWallet[]
   redemptions ServiceRedemption[]
   ledger      TokenLedger[]
+  attendance  MemberAttendance[]
 
 
   @@map("tenants")
@@ -142,13 +143,33 @@ model MemberProfile {
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   status       MemberStatus      @default(ACTIVE)
   joinedAt     DateTime          @default(now())
+  phone        String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  notes        String?
+  membershipStartsAt DateTime?
+  membershipEndsAt   DateTime?
 
   wallet      MemberWallet?
   redemptions ServiceRedemption[]
+  attendance  MemberAttendance[]
 
   @@unique([tenantId, membershipNo])
   @@index([tenantId, status])
   @@map("member_profiles")
+}
+
+model MemberAttendance {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId    String        @db.ObjectId
+  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  memberId    String        @db.ObjectId
+  member      MemberProfile @relation(fields: [memberId], references: [id])
+  checkedInAt DateTime      @default(now())
+  note        String?
+
+  @@index([tenantId, memberId, checkedInAt])
+  @@map("member_attendance")
 }
 
 enum MemberStatus {

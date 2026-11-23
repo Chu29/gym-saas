@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@repo/database';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto.js';
 import { MemberRepository } from './member.repository.js';
+import { CreateMemberCheckInDto, UpdateMemberDetailsDto } from './member-details.dto.js';
 
 @Injectable()
 export class MemberService {
@@ -34,6 +35,24 @@ export class MemberService {
     const member = await this.repo.update(tenantId, id, dto);
     if (!member) throw new NotFoundException('Member not found');
     return member;
+  }
+
+  async updateDetails(tenantId: string, id: string, dto: UpdateMemberDetailsDto) {
+    const member = await this.repo.updateDetails(tenantId, id, dto);
+    if (!member) throw new NotFoundException('Member not found');
+    return member;
+  }
+
+  async recordCheckIn(tenantId: string, id: string, dto: CreateMemberCheckInDto) {
+    const member = await this.repo.findStatus(tenantId, id);
+    if (!member) throw new NotFoundException('Member not found');
+    if (member.status !== 'ACTIVE') {
+      throw new ConflictException('Only active members can check in');
+    }
+
+    const attendance = await this.repo.recordCheckIn(tenantId, id, dto.note);
+    if (!attendance) throw new NotFoundException('Member not found');
+    return attendance;
   }
 
   async deactivate(tenantId: string, id: string) {

@@ -64,5 +64,6 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     return undefined as T;
   }
 
-  return res.json();
+  const body = await res.text();
+  return body ? (JSON.parse(body) as T) : (undefined as T);
 }

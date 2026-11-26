@@ -1,3 +1,5 @@
+import { auth } from '@clerk/nextjs/server';
+
 const API_URL = process.env.API_URL ?? 'http://localhost:4000';
 
 export const SERVICE_CATEGORIES = [
@@ -23,12 +25,17 @@ export interface Service {
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; message: string };
 
-// DEV-ONLY: replace with the logged-in user's session token once real auth exists.
 // Only call this from server code (Server Components / Server Actions).
-function authHeaders(): Record<string, string> {
-  const id = process.env.DEV_ADMIN_USER_ID;
-  if (!id) throw new Error('DEV_ADMIN_USER_ID is not set in apps/web/.env.local');
-  return { 'x-dev-user-id': id };
+async function authHeaders(): Promise<Record<string, string>> {
+  const { getToken, userId } = await auth();
+
+  if (userId) {
+    const token = await getToken();
+    if (!token) throw new Error('Could not retrieve the signed-in user session token');
+    return { Authorization: `Bearer ${token}` };
+  }
+
+  throw new Error('A signed-in gym admin is required');
 }
 
 async function request<T>(
@@ -39,7 +46,7 @@ async function request<T>(
   try {
     res = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
       cache: 'no-store',
     });
   } catch {

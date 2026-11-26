@@ -26,7 +26,7 @@ export default function PlansPage() {
   // so we can disable just that row's buttons instead of the whole page.
   const [_pendingId, setPendingId] = useState<string | null>(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   const authHeaders = useCallback((): HeadersInit => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;

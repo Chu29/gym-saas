@@ -16,9 +16,15 @@ export class TenantService {
   async createGymTenant(clerkId: string, dto: CreateTenantDto) {
     const formattedSlug = dto.slug.toLowerCase().trim().replace(/\s+/g, '-');
 
+    // Log the selected plan for debugging
+    if (dto.plan) {
+      this.logger.log(`User ${clerkId} selected plan: ${dto.plan}`);
+    }
+
     // Check if user exists and already has a tenant
     const existingUser = await this.prisma.user.findUnique({
       where: { clerkId },
+      include: { tenant: true },
     });
 
     const clerkUser = await this.clerkClient.users.getUser(clerkId);
@@ -78,16 +84,18 @@ export class TenantService {
         throw error;
       });
 
-    // Update Clerk public metadata so future JWTs carry tenantId
+    // Update Clerk public metadata so future JWTs carry tenantId and gymName
     try {
       await this.clerkClient.users.updateUserMetadata(clerkId, {
         publicMetadata: {
           role: 'GYM_ADMIN',
           tenantId: tenant.id,
+          gymName: tenant.name,
         },
         unsafeMetadata: {
           role: 'GYM_ADMIN',
           tenantId: tenant.id,
+          gymName: tenant.name,
         },
       });
     } catch (error) {

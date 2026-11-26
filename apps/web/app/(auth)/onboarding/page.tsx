@@ -5,7 +5,7 @@ import OnboardingForm from './components/OnboardingForm';
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: { plan?: string };
+  searchParams: Promise<{ plan?: string }>;
 }) {
   const user = await currentUser();
 
@@ -13,7 +13,7 @@ export default async function OnboardingPage({
     redirect('/login');
   }
 
-  const plan = searchParams.plan || 'starter';
+  const { plan = 'starter' } = (await searchParams) ?? {};
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

@@ -39,7 +39,7 @@ model Tenant {
   name             String
   slug             String       @unique
   status           TenantStatus @default(ACTIVE) // Instant activation defaults to ACTIVE
-  ownerEmail       String
+  ownerEmail       String?
   saasPlanId       String?      @db.ObjectId
   saasPlan         SaasPlan?    @relation(fields: [saasPlanId], references: [id])
   stripeCustomerId String?
@@ -101,10 +101,14 @@ model SubscriptionPlan {
   tenantId              String       @db.ObjectId
   tenant                Tenant       @relation(fields: [tenantId], references: [id])
   name                  String
-  monthlyTokenAllowance Int
+  description           String?
+  monthlyTokenAllowance Int          @default(0)
   priceCents            Int
   currency              String       @default("USD")
+  durationValue         Int          @default(1)
+  durationUnit          DurationUnit @default(MONTH)
   billingCycle          BillingCycle @default(MONTHLY)
+  perks                 String[]     @default([])
   tokenExpiryDays       Int?
   isActive              Boolean      @default(true)
   createdAt             DateTime     @default(now())
@@ -115,12 +119,18 @@ model SubscriptionPlan {
   @@map("subscription_plans")
 }
 
+enum DurationUnit {
+  DAY
+  MONTH
+  YEAR
+}
+
 enum BillingCycle {
   MONTHLY
   QUARTERLY
+  HALF_YEARLY
   ANNUAL
 }
-
 model MemberProfile {
   id           String            @id @default(auto()) @map("_id") @db.ObjectId
   tenantId     String            @db.ObjectId

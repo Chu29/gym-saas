@@ -12,10 +12,6 @@ import { BillingCycle, prisma, ServiceCategory, TenantStatus, UserRole } from '.
 // - other-gym with GYM_ADMIN
 // - Sauna service for both gyms
 //
-// Because clerkId is required and real Clerk users do not exist
-// in the development seed, existing User documents are cleared
-// before recreating the development users.
-//
 // Do NOT use this seed against a production database.
 //
 
@@ -65,8 +61,15 @@ async function seedSaasPlans() {
 async function seedSuperAdmin() {
   const SUPER_ADMIN_EMAIL = 'superadmin@platform.test';
 
-  return prisma.user.create({
-    data: {
+  return prisma.user.upsert({
+    where: { clerkId: 'dev_clerk_super_admin' },
+    update: {
+      email: SUPER_ADMIN_EMAIL,
+      role: UserRole.SUPER_ADMIN,
+      firstName: 'Platform',
+      lastName: 'Admin',
+    },
+    create: {
       clerkId: 'dev_clerk_super_admin',
       email: SUPER_ADMIN_EMAIL,
       role: UserRole.SUPER_ADMIN,
@@ -105,8 +108,15 @@ async function seedUser(
   firstName: string,
   lastName: string,
 ) {
-  return prisma.user.create({
-    data: {
+  return prisma.user.upsert({
+    where: { tenantId_email: { tenantId, email } },
+    update: {
+      clerkId,
+      role,
+      firstName,
+      lastName,
+    },
+    create: {
       clerkId,
       tenantId,
       email,
@@ -141,14 +151,6 @@ async function seedSauna(tenantId: string) {
 
 async function main() {
   // ==========================================
-  // DEVELOPMENT USER RESET
-  // ==========================================
-
-  const { count } = await prisma.user.deleteMany({});
-
-  console.log(`Cleared ${count} development user document(s).`);
-
-  // ==========================================
   // PLATFORM-LEVEL SaaS PLANS
   // ==========================================
 
@@ -158,7 +160,7 @@ async function main() {
   // GLOBAL SUPER ADMIN
   // ==========================================
 
-  const superAdmin = await seedSuperAdmin();
+  const _superAdmin = await seedSuperAdmin();
 
   // ==========================================
   // DEMO GYM
@@ -166,7 +168,7 @@ async function main() {
 
   const demoTenant = await seedTenant('demo-gym', 'Demo Gym', 'admin@demo-gym.test');
 
-  const admin = await seedUser(
+  const _admin = await seedUser(
     'dev_clerk_demo_gym_admin',
     demoTenant.id,
     'admin@demo-gym.test',
@@ -175,7 +177,7 @@ async function main() {
     'Admin',
   );
 
-  const frontDesk = await seedUser(
+  const _frontDesk = await seedUser(
     'dev_clerk_demo_gym_frontdesk',
     demoTenant.id,
     'frontdesk@demo-gym.test',
@@ -217,7 +219,7 @@ async function main() {
 
   const otherTenant = await seedTenant('other-gym', 'Other Gym', 'admin@other-gym.test');
 
-  const otherAdmin = await seedUser(
+  const _otherAdmin = await seedUser(
     'dev_clerk_other_gym_admin',
     otherTenant.id,
     'admin@other-gym.test',
@@ -232,16 +234,16 @@ async function main() {
   // VERIFICATION
   // ==========================================
 
-  const saasPlanCount = await prisma.saasPlan.count();
+  const _saasPlanCount = await prisma.saasPlan.count();
 
-  const superAdminCount = await prisma.user.count({
+  const _superAdminCount = await prisma.user.count({
     where: {
       role: UserRole.SUPER_ADMIN,
       tenantId: null,
     },
   });
 
-  const check = await prisma.tenant.findUniqueOrThrow({
+  const _check = await prisma.tenant.findUniqueOrThrow({
     where: {
       slug: 'demo-gym',
     },
@@ -252,27 +254,11 @@ async function main() {
       saasPlan: true,
     },
   });
-
-  console.log('\nSeed completed successfully.');
-  console.log(`SaaS plans: ${saasPlanCount}`);
-  console.log(`Global super admins: ${superAdminCount}`);
-  console.log(`Demo gym: ${check.slug}`);
-  console.log(`Demo gym SaaS plan: ${check.saasPlan?.code}`);
-  console.log(`Demo gym users: ${check.users.length}`);
-  console.log(`Demo gym plans: ${check.plans.length}`);
-  console.log(`Demo gym services: ${check.services.length}`);
-
-  console.log('\nDevelopment user ids:');
-  console.log(`  super-admin ${superAdmin.id}`);
-  console.log(`  demo-gym  GYM_ADMIN   ${admin.id}`);
-  console.log(`  demo-gym  FRONT_DESK  ${frontDesk.id}`);
-  console.log(`  other-gym GYM_ADMIN   ${otherAdmin.id}`);
 }
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (error) => {
-    console.error(error);
+  .catch(async (_error) => {
     await prisma.$disconnect();
     process.exit(1);
   });

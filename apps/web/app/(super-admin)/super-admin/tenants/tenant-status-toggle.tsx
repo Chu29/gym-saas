@@ -16,7 +16,7 @@ export default function TenantStatusToggle({ tenantId, status }: TenantStatusTog
     try {
       setLoading(true);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
       const res = await fetch(`${apiUrl}/super-admin/tenants/${tenantId}`, {
         method: 'PATCH',

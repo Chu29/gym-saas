@@ -4,11 +4,9 @@
     "outDir": "dist",
     "strictNullChecks": true,
     "paths": {
-      "@repo/ui/components/*": ["./src/components/*"],
-      "@repo/ui/lib/*": ["./src/lib/*"],
-      "@repo/ui/hooks/*": ["./src/hooks/*"]
+      "@repo/ui/*": ["./src/*"]
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["dist", "build", "node_modules"]
 }

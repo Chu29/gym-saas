@@ -77,7 +77,7 @@ To run a specific application:
 # Run the web app only (http://localhost:3000)
 pnpm dev --filter=web
 
-# Run the docs app only (http://localhost:3001)
+# Run the docs app only (http://localhost:4000)
 pnpm dev --filter=docs
 ```
 

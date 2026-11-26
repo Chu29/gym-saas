@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { MemberRegistrationModule } from './modules/member-registration/member-registration.module.js';
 import { MemberModule } from './modules/members/member.module.js';
 import { MembershipPlanModule } from './modules/membership-plans/membership-plan.module.js';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module.js';
@@ -11,7 +12,6 @@ import { ServicesModule } from './services/services.module.js';
 import { TenantController } from './tenant/tenant.controller.js';
 import { TenantService } from './tenant/tenant.service.js';
 import { WebhooksModule } from './webhooks/webhooks.module.js';
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -22,6 +22,7 @@ import { WebhooksModule } from './webhooks/webhooks.module.js';
     ServicesModule,
     WebhooksModule,
     SuperAdminModule,
+    MemberRegistrationModule,
   ],
   controllers: [AppController, TenantController],
   providers: [AppService, TenantService],

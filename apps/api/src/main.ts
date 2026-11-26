@@ -10,7 +10,7 @@ try {
 }
 
 import { clerkMiddleware } from '@clerk/express';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 
@@ -19,8 +19,6 @@ async function bootstrap() {
     // Required to capture raw request body for Svix webhook verification
     rawBody: true,
   });
-
-  const logger = new Logger('Bootstrap');
 
   // Enable CORS for frontend calls
   app.enableCors({
@@ -48,10 +46,10 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT ?? 4000;
-  await app.listen(port);
+  // const port = process.env.PORT ?? 4000;
+  await app.listen(4000, '0.0.0.0');
 
-  logger.log(`Application is running on: http://localhost:${port}`);
+  // logger.log(`Application is running on: http://localhost:${port}`);
 }
 
 bootstrap();

@@ -312,3 +312,25 @@ enum RedemptionStatus {
   FAILED_INSUFFICIENT_TOKENS
   REVERSED
 }
+model MemberInvitation {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId          String           @db.ObjectId
+  email             String
+  firstName         String
+  lastName          String
+  planId            String?          @db.ObjectId
+  clerkInvitationId String?
+  status            InvitationStatus @default(PENDING)
+  invitedAt         DateTime         @default(now())
+  acceptedAt        DateTime?
+
+  @@unique([tenantId, email])
+  @@index([tenantId, status])
+  @@map("member_invitations")
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}

@@ -16,6 +16,7 @@ import { Roles } from '../../auth/roles.decorator.js';
 import { RolesGuard } from '../../auth/roles.guard.js';
 import { CreateMemberDto, UpdateMemberDto } from './member.dto.js';
 import { MemberService } from './member.service.js';
+import { CreateMemberCheckInDto, UpdateMemberDetailsDto } from './member-details.dto.js';
 
 @Controller('members')
 @UseGuards(ClerkAuthGuard, RolesGuard)
@@ -44,6 +45,26 @@ export class MemberController {
   @Roles(UserRole.GYM_ADMIN, UserRole.FRONT_DESK)
   update(@TenantId() tenantId: string, @Param('id') id: string, @Body() dto: UpdateMemberDto) {
     return this.service.update(tenantId, id, dto);
+  }
+
+  @Patch(':id/details')
+  @Roles(UserRole.GYM_ADMIN, UserRole.FRONT_DESK)
+  updateDetails(
+    @TenantId() tenantId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateMemberDetailsDto,
+  ) {
+    return this.service.updateDetails(tenantId, id, dto);
+  }
+
+  @Post(':id/check-ins')
+  @Roles(UserRole.GYM_ADMIN, UserRole.FRONT_DESK)
+  recordCheckIn(
+    @TenantId() tenantId: string,
+    @Param('id') id: string,
+    @Body() dto: CreateMemberCheckInDto,
+  ) {
+    return this.service.recordCheckIn(tenantId, id, dto);
   }
 
   @Patch(':id/freeze')

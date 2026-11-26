@@ -8,6 +8,7 @@ const ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
   { href: '/front-desk', label: 'Front desk', icon: 'counter_1' },
   { href: '/terminal', label: 'Terminal', icon: 'point_of_sale' },
+  { href: '/admin/members', label: 'Members', icon: 'groups' },
   { href: '/admin/memberships', label: 'Memberships', icon: 'card_membership' },
   { href: '/admin/services', label: 'Services', icon: 'loyalty' },
 ];
@@ -22,8 +23,7 @@ export function AdminNav() {
       </div>
       <nav aria-label="Admin" className="flex gap-1 lg:flex-col">
         {ITEMS.map((item) => {
-          const active =
-            pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

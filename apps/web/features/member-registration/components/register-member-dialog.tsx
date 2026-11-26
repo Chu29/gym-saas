@@ -114,8 +114,8 @@ export function RegisterMemberDialog({
             <select id="rm-plan" {...register('planId')} className={inputClass}>
               <option value="">No plan yet</option>
               {plans
-                .filter((p) => p.isActive)
-                .map((p) => (
+                .filter((p: { isActive: boolean }) => p.isActive)
+                .map((p: { id: string; name: string }) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
